@@ -124,6 +124,7 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 {
 	//This function add the friction contribution to wet cells.
 	//This fucntion should not be called when: minh_loc.LE.TOL_H << check if the function has the criterion to be taken into accont MS05Sep2017
+	
 
 	double2 result;
 
@@ -166,8 +167,11 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 	return result;
 }
 
+
 inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, double dt)
 {
+	
+
 	if (GLOBAL_MANNING > 0.0)
 	{
 		AgentFlowData FlowData = GetFlowDataFromAgent(agent);
@@ -182,6 +186,7 @@ inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, doubl
 		agent->qx = frict_Q.x;
 		agent->qy = frict_Q.y;
 
+		
 
 	}
 
@@ -213,6 +218,7 @@ __FLAME_GPU_FUNC__ int PrepareWetDry(xmachine_memory_FloodCell* agent, xmachine_
 
 __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xmachine_message_WetDryMessage_list* WetDryMessage_messages)
 {
+
 	if (agent->inDomain==1)
 	{
 
@@ -251,6 +257,9 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 		}
 
 	}
+
+	//printf("qx = %f \t qy = %f \n", agent->qx, agent->qy);
+
 
 	return 0;
 }
@@ -1067,9 +1076,9 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	//agent->h  = TIMESTEP * agent->h;
 	//agent->qx = TIMESTEP * agent->qx;
 	//agent->qy = TIMESTEP * agent->qy;
-	//agent->h = 0.05 * agent->h;
-	//agent->qx = 0.05 * agent->qx;
-	//agent->qy = 0.05 * agent->qy;
+	//agent->h  =   agent->h;
+	//agent->qx =   agent->qx;
+	//agent->qy =   agent->qy;
 
 
 	// Secure zero velocities at the wet/dry front

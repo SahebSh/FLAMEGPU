@@ -6,11 +6,11 @@
 // The output is the initial file to be employed in the flood modelling in FLAME-GPU
 // The data which is used in this function is exactly the same as MATLAB solution for SWEs (FV)
 
-float bed_data(float x_int , float y_int);
+double bed_data(double x_int , double y_int);
 
-float initial_flow(float x_int , float y_int , float z0_int);
+double initial_flow(double x_int , double y_int , double z0_int);
 
-float maxi(float num1, float num2);
+double maxi(double num1, double num2);
 
 int main()
 {
@@ -23,9 +23,9 @@ int main()
     
          // Model constant :  they are imported to the output file          
 
-         float       TIMESTEP = 0.5; // assigned Temporary 
-         float       DXL;
-         float       DYL;
+         double       TIMESTEP = 0.5; // assigned Temporary 
+         double       DXL;
+         double       DYL;
          int         inDomain = 1 ;
            
         int xmin = 0;
@@ -36,32 +36,37 @@ int main()
         int nx = 64;
         int ny = 64;
         
-        float Lx , Ly;
-        float dx , dy;
+        double Lx , Ly;
+        double dx , dy;
         int i , j ;
 
           /*Initial variables*/         
-          float qx_int[nx+1][ny+1], qy_int[nx+1][ny+1], h_int[nx+1][ny+1], z0_int[nx+1][ny+1];
-          float x_int[nx+1],y_int[ny+1];
+          double qx_int[nx+1][ny+1], qy_int[nx+1][ny+1], h_int[nx+1][ny+1], z0_int[nx+1][ny+1];
+          double x_int[nx+1],y_int[ny+1];
         
-          float qx[nx+2][ny+2], qy[nx+2][ny+2], h[nx+2][ny+2], z0[nx+2][ny+2];
+          double qx[nx+2][ny+2], qy[nx+2][ny+2], h[nx+2][ny+2], z0[nx+2][ny+2];
     
-          float x[nx+2],y[ny+2];
-          float xi[nx],yj[ny]; //In cse a plot is needed
+          double x[nx+2],y[ny+2];
+          double xi[nx],yj[ny]; //In cse a plot is needed
+          
+          double hFace_E = 0.0 , etFace_E= 0.0, qxFace_E= 0.0, qyFace_E= 0.0;
+          double hFace_W = 0.0 , etFace_W= 0.0, qxFace_W= 0.0, qyFace_W= 0.0;
+          double hFace_N = 0.0 , etFace_N= 0.0, qxFace_N= 0.0, qyFace_N= 0.0;
+          double hFace_S = 0.0 , etFace_S= 0.0, qxFace_S= 0.0, qyFace_S= 0.0;
 
     
     // initial flow rate
-    float qx_initial = 0.00;
-    float qy_initial = 0.00;
+    double qx_initial = 0.00;
+    double qy_initial = 0.00;
     
     // Mesh-grid propertise
     Lx = xmax - xmin;
     Ly = ymax - ymin;
-    dx = (float)Lx/(float)nx;
-    dy = (float)Ly/(float)ny;
+    dx = (double)Lx/(double)nx;
+    dy = (double)Ly/(double)ny;
     
-    DXL = (float)dx; // Temporary
-    DYL = (float)dy; // Temporary
+    DXL = (double)dx; // Temporary
+    DYL = (double)dy; // Temporary
     
     
     fprintf(fp,"<states>\n");
@@ -79,8 +84,8 @@ int main()
             x_int[i] = xmin + (i-1) * dx; 
             y_int[j] = ymin + (j-1) * dy;
             
-            z0_int[i][j] = bed_data    ((float)x_int[i],(float)y_int[j]);
-            h_int[i][j]  = initial_flow((float)x_int[i],(float)y_int[j],(float)z0_int[i][j]);
+            z0_int[i][j] = bed_data    ((double)x_int[i],(double)y_int[j]);
+            h_int[i][j]  = initial_flow((double)x_int[i],(double)y_int[j],(double)z0_int[i][j]);
             qx_int[i][j] = qx_initial; // Temporary assigned value
             qy_int[i][j] = qy_initial; // Temporary assigned value (However it should be 0 )
             
@@ -100,7 +105,44 @@ int main()
                     
                     qx[i][j] = 0.25*(qx_int[i][j+1] + qx_int[i][j] + qx_int[i+1][j] + qx_int[i+1][j+1]);
                     qy[i][j] = 0.25*(qy_int[i][j+1] + qy_int[i][j] + qy_int[i+1][j] + qy_int[i+1][j+1]);
-                   
+                    
+                    
+                    // Missing data at the first iteration
+                    if (i == 1)
+                    {
+                    	hFace_E = h[i][j];
+                    	hFace_W = h[i][j];
+                    	hFace_N = h[i][j];
+                    	hFace_S = h[i][j];
+                    	
+                    	qxFace_E = qx[i][j];
+                    	qxFace_W = qx[i][j];
+                    	qxFace_N = qx[i][j];
+                    	qxFace_S = qx[i][j];
+                    	
+                    	qyFace_E = qy[i][j];
+                    	qyFace_W = qy[i][j];
+                    	qyFace_N = qy[i][j];
+                    	qyFace_S = qy[i][j];
+                    	
+					} else {
+						
+						hFace_E = 0;
+                    	hFace_W = 0;
+                    	hFace_N = 0;
+                    	hFace_S = 0;
+                    	
+                    	qxFace_E = 0;
+                    	qxFace_W = 0;
+                    	qxFace_N = 0;
+                    	qxFace_S = 0;
+                    	
+                    	qyFace_E = 0;
+                    	qyFace_W = 0;
+                    	qyFace_N = 0;
+                    	qyFace_S = 0;
+					}
+
 //                   printf("The value of z0 in x[%f] y[%f] %3f\n", x[i], y[j] , z0[i][j] );
 //                   *To test the results : 
                     // fprintf(fp," x[%d] = %.3f\ty[%d] = %.3f\tz0 = %.3f \n ", i, x[i], j , y[j] , z0[i][j] );
@@ -109,14 +151,30 @@ int main()
 	                fprintf(fp, "\t<name>FloodCell</name>\n");
 	                
 	                fprintf(fp, "\t<inDomain>%d</inDomain>\n", inDomain);
-//                    fprintf(fp, "\t<x>%.4f</x>\n", x[i]);
-//                    fprintf(fp, "\t<y>%.4f</y>\n", y[j]);
+//                    fprintf(fp, "\t<x>%f</x>\n", x[i]);
+//                    fprintf(fp, "\t<y>%f</y>\n", y[j]);
                     fprintf(fp, "\t<x>%d</x>\n", i);
                     fprintf(fp, "\t<y>%d</y>\n", j);
-                    fprintf(fp, "\t<z0>%.4f</z0>\n",z0[i][j]);
-                    fprintf(fp, "\t<h>%.4f</h>\n",h[i][j]);
-                    fprintf(fp, "\t<qx>%.4f</qx>\n",qx[i][j]);
-                    fprintf(fp, "\t<qy>%.4f</qy>\n",qy[i][j]);         
+                    fprintf(fp, "\t<z0>%f</z0>\n",z0[i][j]);
+                    fprintf(fp, "\t<h>%f</h>\n",h[i][j]);
+                    fprintf(fp, "\t<qx>%f</qx>\n",qx[i][j]);
+                    fprintf(fp, "\t<qy>%f</qy>\n",qy[i][j]); 
+                    
+					fprintf(fp, "\t<hFace_E>%f</hFace_E>\n",hFace_E);
+					fprintf(fp, "\t<hFace_W>%f</hFace_W>\n",hFace_W);
+					fprintf(fp, "\t<hFace_N>%f</hFace_N>\n",hFace_N);
+					fprintf(fp, "\t<hFace_S>%f</hFace_S>\n",hFace_S);
+					
+                    fprintf(fp, "\t<qxFace_E>%f</qxFace_E>\n",qxFace_E);
+                    fprintf(fp, "\t<qxFace_W>%f</qxFace_W>\n",qxFace_W);
+                    fprintf(fp, "\t<qxFace_N>%f</qxFace_N>\n",qxFace_N);
+                    fprintf(fp, "\t<qxFace_S>%f</qxFace_S>\n",qxFace_S);
+                    
+                    fprintf(fp, "\t<qyFace_E>%f</qyFace_E>\n",qyFace_E);
+                    fprintf(fp, "\t<qyFace_W>%f</qyFace_W>\n",qyFace_W);
+                    fprintf(fp, "\t<qyFace_N>%f</qyFace_N>\n",qyFace_N);
+                    fprintf(fp, "\t<qyFace_S>%f</qyFace_S>\n",qyFace_S);
+					        
                     fprintf(fp, " </xagent>\n");
                    
                     
@@ -130,26 +188,26 @@ int main()
 }
 
 /* Function to generate the terrain detail - Three Humps*/
- float bed_data(float x_int , float y_int)
+ double bed_data(double x_int , double y_int)
  {
-       float zz;
+       double zz;
        
-       float x1 = 30.000;
-       float y1 = 6.000;
-       float x2 = 30.000;
-       float y2 = 24.000;
-       float x3 = 47.500;
-       float y3 = 15.000;
+       double x1 = 30.000;
+       double y1 = 6.000;
+       double x2 = 30.000;
+       double y2 = 24.000;
+       double x3 = 47.500;
+       double y3 = 15.000;
        
-       float rm1 = 8.000;
-       float rm2 = 8.000;
-       float rm3 = 10.000; 
+       double rm1 = 8.000;
+       double rm2 = 8.000;
+       double rm3 = 10.000; 
        
-       float r1,r2,r3;
-       float zb1,zb2,zb3,zb4;
-       float zz1,zz2;
+       double r1,r2,r3;
+       double zb1,zb2,zb3,zb4;
+       double zz1,zz2;
        
-       float x01,x02,x03,y01,y02,y03;
+       double x01,x02,x03,y01,y02,y03;
 
 
        x01 = x_int - x1;
@@ -173,18 +231,18 @@ int main()
        zb3 = 3 * (rm1 - r3)/10 ;
        zb4 = 0; /*This is the max surface*/
        
-       zz1 = maxi((float)zb1,(float)zb2 );
-       zz2 = maxi((float)zb3,(float)zb4 );
+       zz1 = maxi((double)zb1,(double)zb2 );
+       zz2 = maxi((double)zb3,(double)zb4 );
        
-       zz = 1.0 * maxi((float)zz1 , (float)zz2);
+       zz = 1.0 * maxi((double)zz1 , (double)zz2);
        
        return zz;
        }
        
  /* function returning the max between two numbers */
-float maxi(float num1, float num2) {
+double maxi(double num1, double num2) {
       
-        float result;
+        double result;
     
       if (num1 > num2)
        result = num1;
@@ -194,11 +252,11 @@ float maxi(float num1, float num2) {
    return result; 
 }  
  
- float initial_flow(float x_int , float y_int , float z0_int)
+ double initial_flow(double x_int , double y_int , double z0_int)
  {
 
-       float etta = 1.875;
-       float h;
+       double etta = 1.875;
+       double h;
        
        if ( x_int <= 16 ) {
             h = maxi(0.0,etta - z0_int);
