@@ -32,7 +32,7 @@ Done by the date:
 - Reimann Solver is refined with correct values 
 - Times step is introduced as global variable (instead of agent environment variable)
 
------------------ MS11Oct2017 ------------------ ( Model Runs Properly)
+----------------- MS16Oct2017 ------------------ ( Model Runs Properly)
 - All the bugs of the model is corrected (Many of which caused by boundary condition issues). 
 
 - Boundary condition issue is tackled by using a flux calculations before incorporating with neighbours. so that the input data is restricted to defined values in boundaries. see Ln 782
@@ -49,3 +49,5 @@ Done by the date:
 	- Make DXL and DYL an agent constant (which is automaticlly calculated by initial condition generator), rather than being a global variable. 
 	- Transferring the results into a readable text/dot file to be able to visualise/plot the outputs.
 	- Build a execuateble visualisation file within the flamegpu framework (manipulation of arguments and commands)
+
+- The case is set to 64*64 Grid and DamBreak of 1.875 case study.
