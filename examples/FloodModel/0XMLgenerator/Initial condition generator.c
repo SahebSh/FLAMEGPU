@@ -71,11 +71,11 @@ int main()
     
     fprintf(fp,"<states>\n");
     fprintf(fp,"<itno>0</itno>\n");
-    fprintf(fp," <environment>\n"); 
-    fprintf(fp,"  <TIMESTEP>%f</TIMESTEP>\n",TIMESTEP);
-    fprintf(fp,"  <DXL>%f</DXL>\n",DXL);
-    fprintf(fp,"  <DYL>%f</DYL>\n",DYL);
-    fprintf(fp," </environment>\n");
+//    fprintf(fp," <environment>\n"); 
+////    fprintf(fp,"  <TIMESTEP>%f</TIMESTEP>\n",TIMESTEP);
+////    fprintf(fp,"  <DXL>%f</DXL>\n",DXL);
+////    fprintf(fp,"  <DYL>%f</DYL>\n",DYL);
+//    fprintf(fp," </environment>\n");
     
 
       for ( i=1 ; i <= nx+1 ; i++){  
@@ -107,9 +107,9 @@ int main()
                     qy[i][j] = 0.25*(qy_int[i][j+1] + qy_int[i][j] + qy_int[i+1][j] + qy_int[i+1][j+1]);
                     
                     
-                    // Missing data at the first iteration
-                    if (i == 1)
-                    {
+//                    // Missing data at the first iteration  // For Dam break solutions, it needs to be compatible with the problem
+//                    if (i == 1)
+//                    {
                     	hFace_E = h[i][j];
                     	hFace_W = h[i][j];
                     	hFace_N = h[i][j];
@@ -125,23 +125,24 @@ int main()
                     	qyFace_N = qy[i][j];
                     	qyFace_S = qy[i][j];
                     	
-					} else {
-						
-						hFace_E = 0;
-                    	hFace_W = 0;
-                    	hFace_N = 0;
-                    	hFace_S = 0;
-                    	
-                    	qxFace_E = 0;
-                    	qxFace_W = 0;
-                    	qxFace_N = 0;
-                    	qxFace_S = 0;
-                    	
-                    	qyFace_E = 0;
-                    	qyFace_W = 0;
-                    	qyFace_N = 0;
-                    	qyFace_S = 0;
-					}
+//					} 
+//					else {
+//						
+//						hFace_E = 0;
+//                    	hFace_W = 0;
+//                    	hFace_N = 0;
+//                    	hFace_S = 0;
+//                    	
+//                    	qxFace_E = 0;
+//                    	qxFace_W = 0;
+//                    	qxFace_N = 0;
+//                    	qxFace_S = 0;
+//                    	
+//                    	qyFace_E = 0;
+//                    	qyFace_W = 0;
+//                    	qyFace_N = 0;
+//                    	qyFace_S = 0;
+//					}
 
 //                   printf("The value of z0 in x[%f] y[%f] %3f\n", x[i], y[j] , z0[i][j] );
 //                   *To test the results : 

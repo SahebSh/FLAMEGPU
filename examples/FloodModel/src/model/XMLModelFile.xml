@@ -3,7 +3,7 @@
         xmlns="http://www.dcs.shef.ac.uk/~paul/XMML">
     <name>flood</name>
     <gpu:environment>
-        <gpu:constants>
+        <!--<gpu:constants>
             <gpu:variable>
                 <type>double</type>
                 <name>TIMESTEP</name>
@@ -16,7 +16,7 @@
                 <type>double</type>
                 <name>DYL</name>
             </gpu:variable>
-        </gpu:constants>
+        </gpu:constants>-->
         <gpu:functionFiles>
             <file>functions.c</file>
         </gpu:functionFiles>
@@ -159,7 +159,7 @@
                     <gpu:reallocate>false</gpu:reallocate>
                     <gpu:RNG>false</gpu:RNG>
                 </gpu:function>
-                <gpu:function>
+                <!--<gpu:function>
                     <name>PrepareLFV</name>
                     <currentState>Default</currentState>
                     <nextState>Default</nextState>
@@ -171,8 +171,8 @@
                     </outputs>
                     <gpu:reallocate>false</gpu:reallocate>
                     <gpu:RNG>false</gpu:RNG>
-                </gpu:function>
-                <gpu:function>
+                </gpu:function>-->
+                <!--<gpu:function>
                     <name>ProcessLFVMessage</name>
                     <currentState>Default</currentState>
                     <nextState>Default</nextState>
@@ -183,7 +183,7 @@
                     </inputs>
                     <gpu:reallocate>false</gpu:reallocate>
                     <gpu:RNG>false</gpu:RNG>
-                </gpu:function>
+                </gpu:function>-->
               <gpu:function>
                 <name>PrepareSpaceOperator</name>
                 <currentState>Default</currentState>
@@ -248,7 +248,7 @@
         <gpu:bufferSize>4096</gpu:bufferSize>
       </gpu:message>
 
-      <gpu:message>
+      <!--<gpu:message>
         <name>LFVMessage</name>
         <variables>
           <gpu:variable>
@@ -284,7 +284,7 @@
           <gpu:radius>1</gpu:radius>
         </gpu:partitioningDiscrete>
         <gpu:bufferSize>4096</gpu:bufferSize>
-      </gpu:message>
+      </gpu:message>-->
       
         <gpu:message>
             <name>SpaceOperatorMessage</name>
@@ -301,6 +301,22 @@
                     <type>int</type>
                     <name>y</name>
                 </gpu:variable>
+              <!--<gpu:variable>
+                 <type>double</type>
+                   <name>z0</name>
+                 </gpu:variable>
+              <gpu:variable>
+             <type>double</type>
+            <name>h</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qx</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qy</name>
+          </gpu:variable>-->
                 <gpu:variable>
                     <!--EAST-->
                     <type>double</type>
@@ -389,7 +405,7 @@
                 <name>ProcessWetDryMessage</name>
             </gpu:layerFunction>
         </layer>
-        <layer>
+        <!--<layer>
             <gpu:layerFunction>
                 <name>PrepareLFV</name>
             </gpu:layerFunction>
@@ -398,7 +414,7 @@
             <gpu:layerFunction>
                 <name>ProcessLFVMessage</name>
             </gpu:layerFunction>
-        </layer>
+        </layer>-->
         <layer>
             <gpu:layerFunction>
                 <name>PrepareSpaceOperator</name>

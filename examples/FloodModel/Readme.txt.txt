@@ -31,3 +31,21 @@ Done by the date:
 - Corrections made in LFVs
 - Reimann Solver is refined with correct values 
 - Times step is introduced as global variable (instead of agent environment variable)
+
+----------------- MS11Oct2017 ------------------ ( Model Runs Properly)
+- All the bugs of the model is corrected (Many of which caused by boundary condition issues). 
+
+- Boundary condition issue is tackled by using a flux calculations before incorporating with neighbours. so that the input data is restricted to defined values in boundaries. see Ln 782
+
+- Wet/Dry agent message is modified to the correct form of condition. agent->isDry changed to agent->minh_loc <= TOL_H and etc.
+
+- TIMESTEP , DXL, DYL are introduced within the environment of the model. They seemed to be not accessible to the model within the 0.xml file.
+
+- The results are compared (visually checked) with that of C and MATLAB project with the same specifications and domain size. The model shows satisfying results.
+
+* Further steps :
+ 
+	- Introducing adaptive dt to the model, using step functions. 
+	- Make DXL and DYL an agent constant (which is automaticlly calculated by initial condition generator), rather than being a global variable. 
+	- Transferring the results into a readable text/dot file to be able to visualise/plot the outputs.
+	- Build a execuateble visualisation file within the flamegpu framework (manipulation of arguments and commands)
