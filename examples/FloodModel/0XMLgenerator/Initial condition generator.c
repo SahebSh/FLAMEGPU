@@ -6,11 +6,15 @@
 // The output is the initial file to be employed in the flood modelling in FLAME-GPU
 // The data which is used in this function is exactly the same as MATLAB solution for SWEs (FV)
 
+// declaration of functions which are defined and called in the model
+double max2(double num1 , double num2);
+double max4(double num_1, double num_2, double num_3, double num_4);
+double min2(double num1 , double num2);
+double min4(double num_1, double num_2, double num_3, double num_4 );
 double bed_data(double x_int , double y_int);
-
 double initial_flow(double x_int , double y_int , double z0_int);
 
-double maxi(double num1, double num2);
+
 
 int main()
 {
@@ -27,20 +31,29 @@ int main()
          double       DXL;
          double       DYL;
          int         inDomain = 1 ;
-           
+         
+		// Specifying the size of domain   
         int xmin = 0;
         int xmax = 75;
         int ymin = 0;
         int ymax = 30;
         
-        int nx = 64;
-        int ny = 64;
+   //********************** This is to specify the number of agents, which is supposed to be square ********************* 
+        int nx = 128;//256;
+        int ny = 128;//256;
+    //********************************************************************************************************************   
         
-        double Lx , Ly;
+        // The length of the domain
+		double Lx , Ly;
+		
+		// size of the domain
         double dx , dy;
+        
+        // iteration integers
         int i , j ;
 
-          /*Initial variables*/         
+
+          /*Initial variables, to be printed*/         
           double qx_int[nx+1][ny+1], qy_int[nx+1][ny+1], h_int[nx+1][ny+1], z0_int[nx+1][ny+1];
           double x_int[nx+1],y_int[ny+1];
         
@@ -188,85 +201,126 @@ int main()
     
 }
 
-/* Function to generate the terrain detail - Three Humps*/
- double bed_data(double x_int , double y_int)
- {
-       double zz;
-       
-       double x1 = 30.000;
-       double y1 = 6.000;
-       double x2 = 30.000;
-       double y2 = 24.000;
-       double x3 = 47.500;
-       double y3 = 15.000;
-       
-       double rm1 = 8.000;
-       double rm2 = 8.000;
-       double rm3 = 10.000; 
-       
-       double r1,r2,r3;
-       double zb1,zb2,zb3,zb4;
-       double zz1,zz2;
-       
-       double x01,x02,x03,y01,y02,y03;
 
-
-       x01 = x_int - x1;
-       x02 = x_int - x2;
-       x03 = x_int - x3;
-       y01 = y_int - y1;
-       y02 = y_int - y2;
-       y03 = y_int - y3;
-       
-//       r1 = pow(((pow(x01,2))+(pow(y01,2))),0.5);
-//       r2 = pow(((pow(x02,2))+(pow(y02,2))),0.5);
-//       r2 = pow(((pow(x03,2))+(pow(y03,2))),0.5);
-       
-       r1 = sqrt((pow(x01,2.0)) + (pow(y01,2.0)));
-       r2 = sqrt((pow(x02,2.0)) + (pow(y02,2.0)));
-       r3 = sqrt((pow(x03,2.0)) + (pow(y03,2.0))); 
-
-       
-       zb1 = (rm1 - r1)/8 ;
-       zb2 = (rm2 - r2)/8 ;
-       zb3 = 3 * (rm1 - r3)/10 ;
-       zb4 = 0; /*This is the max surface*/
-       
-       zz1 = maxi((double)zb1,(double)zb2 );
-       zz2 = maxi((double)zb3,(double)zb4 );
-       
-       zz = 1.0 * maxi((double)zz1 , (double)zz2);
-       
-       return zz;
-       }
-       
- /* function returning the max between two numbers */
-double maxi(double num1, double num2) {
-      
-        double result;
-    
-      if (num1 > num2)
-       result = num1;
-       else
-           result = num2;
- 
-   return result; 
-}  
- 
- double initial_flow(double x_int , double y_int , double z0_int)
- {
+double initial_flow(double x_int , double y_int , double z0_int)
+   {
 
        double etta = 1.875;
        double h;
        
        if ( x_int <= 16 ) {
-            h = maxi(0.0,etta - z0_int);
+            h = max2(0.0,etta - z0_int);
             }
             else{
-                 h = 0.0 *maxi(0.0,etta - z0_int);
+                 h = 0.0*max2(0.0,etta - z0_int);
                  }
                  
           return h;
-          }
-                  
+    }
+//    
+     
+/* Function to generate the terrain detail - Three Humps*/
+ double bed_data(double x_int, double y_int)
+ {
+ 	// This function generates Three Humps terrain detail in the model
+ 	
+       double zz ;
        
+       double x1 = 30.000;
+       double y1 = 6.000;
+
+       double x2 = 30.000;
+       double y2 = 24.000;
+////
+       double x3 = 47.500;
+       double y3 = 15.000;
+//  
+//       
+       double rm1 = 8.000;
+       double rm2 = 8.000;
+       double rm3 = 10.000; 
+//       
+       
+//       
+//
+//
+       double x01 = x_int - x1;
+       double x02 = x_int - x2;
+       double x03 = x_int - x3;
+       
+       double y01 = y_int - y1;
+       double y02 = y_int - y2;
+       double y03 = y_int - y3;
+//
+//       
+       double r1 = sqrt(pow(x01,2.0) + pow(y01,2.0));
+       double r2 = sqrt(pow(x02,2.0) + pow(y02,2.0));
+       double r3 = sqrt(pow(x03,2.0) + pow(y03,2.0)); 
+//
+//       
+       double zb1 = (rm1 - r1) / 8.0 ;
+       double zb2 = (rm2 - r2) / 8.0 ;
+       double zb3 = 3 * (rm3 - r3) / 10.0 ;
+       double zb4 = 0.0; /*This is the minimum height of the topography*/
+
+       zz = 1.0 * max4((double)zb1,(double)zb2,(double)zb3,(double)zb4);
+       
+       return zz ;
+}
+// This function evaluates a maximum of four numbers   
+double max4(double num_1, double num_2, double num_3, double num_4)
+{
+      double result1;
+      double result2;
+     
+	  double result ;
+      
+      result1 = max2(num_1 , num_2);
+      result2 = max2(num_3 , num_4);
+      result  = max2(result1,result2);
+      
+      return result;
+}
+
+// This function evaluates a maximum of two numbers
+double max2(double num1, double num2) {
+      
+        double result;
+    
+      if (num1 > num2)
+           result = num1;
+       else
+           result = num2;
+ 
+   return result; 
+}
+
+// This function evaluates a minimum of four numbers      
+double min4(double num_1, double num_2, double num_3, double num_4 )
+{
+      double result1;
+      double result2;
+      
+      double result;
+      
+      result1 = min2(num_1 , num_2);
+      result2 = min2(num_3 , num_4);
+      result  = min2(result1,result2);
+      
+      return result;
+      
+ }  
+      
+// This function evaluates a maximum of two numbers
+double min2(double num1, double num2) 
+{
+      
+        double result;
+    
+      if (num1 < num2)
+           result = num1;
+       else
+           result = num2;
+ 
+   return result; 
+}  

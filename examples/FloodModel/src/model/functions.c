@@ -24,8 +24,8 @@
 #define GRAVITY 9.80665 
 #define GLOBAL_MANNING 0.018500
 #define CFL 0.5
-#define TOL_H 0.000001
-#define TIMESTEP 0.013
+#define TOL_H 0.001
+#define TIMESTEP 0.017
 #define DXL 1.171875
 #define DYL 0.468750
 
@@ -130,41 +130,48 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 
 
 	double2 result;
-
-	result.x = 0.0;
-	result.y = 0.0;
-
-
-	// Local velocities    
-	double u_loc = qx_loc / h_loc;
-	double v_loc = qy_loc / h_loc;
-
-	// Friction forces are incative as the flow is motionless.
-	if ((fabs(u_loc) <= emsmall)
-		&& (fabs(v_loc) <= emsmall)
-		)
+	
+	//result.x = 0.0;
+	//result.y = 0.0;
+	if (h_loc > TOL_H)
 	{
-		result.x = qx_loc;
-		result.y = qy_loc;
+
+		// Local velocities    
+		double u_loc = qx_loc / h_loc;
+		double v_loc = qy_loc / h_loc;
+
+		// Friction forces are incative as the flow is motionless.
+		if ((fabs(u_loc) <= emsmall)
+			&& (fabs(v_loc) <= emsmall)
+			)
+		{
+			result.x = qx_loc;
+			result.y = qy_loc;
+		}
+		else
+		{
+			// The is motional. The FRICTIONS CONTRUBUTION HAS TO BE ADDED SO THAT IT DOESN'T REVERSE THE FLOW.
+
+			double Cf = GRAVITY * pow(GLOBAL_MANNING, 2.0) / pow(h_loc, 1.0 / 3.0);
+
+			double expULoc = pow(u_loc, 2.0);
+			double expVLoc = pow(v_loc, 2.0);
+
+			double Sfx = -Cf * u_loc * sqrt(expULoc + expVLoc);
+			double Sfy = -Cf * v_loc * sqrt(expULoc + expVLoc);
+
+			double DDx = 1.0 + dt_loc * (Cf / h_loc * (2.0 * expULoc + expVLoc) / sqrt(expULoc + expVLoc));
+			double DDy = 1.0 + dt_loc * (Cf / h_loc * (expULoc + 2.0 * expVLoc) / sqrt(expULoc + expVLoc));
+
+			result.x = qx_loc + (dt_loc * (Sfx / DDx));
+			result.y = qy_loc + (dt_loc * (Sfy / DDy));
+
+		}
 	}
 	else
 	{
-		// The is motional. The FRICTIONS CONTRUBUTION HAS TO BE ADDED SO THAT IT DOESN'T REVERSE THE FLOW.
-
-		double Cf = GRAVITY * pow(GLOBAL_MANNING, 2.0) / pow(h_loc, 1.0 / 3.0);
-
-		double expULoc = pow(u_loc, 2.0);
-		double expVLoc = pow(v_loc, 2.0);
-
-		double Sfx = -Cf * u_loc * sqrt(expULoc + expVLoc);
-		double Sfy = -Cf * v_loc * sqrt(expULoc + expVLoc);
-
-		double DDx = 1.0 + dt_loc * (Cf / h_loc * (2.0 * expULoc + expVLoc) / sqrt(expULoc + expVLoc));
-		double DDy = 1.0 + dt_loc * (Cf / h_loc * (expULoc + 2.0 * expVLoc) / sqrt(expULoc + expVLoc));
-
-		result.x = qx_loc + (dt_loc * (Sfx / DDx));
-		result.y = qy_loc + (dt_loc * (Sfy / DDy));
-
+		result.x = 0.0;
+		result.y = 0.0;
 	}
 
 	return result;
@@ -1127,16 +1134,16 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	// Secure zero velocities at the wet/dry front // Adaptive dt needs to be added to the model with dynamic dt (Using Set functions)
 	//////double h0 = agent->h;
 
-	if (agent->h <= TOL_H) //not working
-	{
-		agent->qx = 0.0;
-		agent->qy = 0.0;
-	}
-	else
-	{
-		agent->qx = agent->qx;
-		agent->qy = agent->qy;
-	}
+	//if (agent->h <= TOL_H) //not working
+	//{
+	//	agent->qx = 0.0;
+	//	agent->qy = 0.0;
+	//}
+	//else
+	//{
+	//	agent->qx = agent->qx;
+	//	agent->qy = agent->qy;
+	//}
 	
 	//////	
 	//////	//this needs to be set high, so it is ignored in the timestep reduction stage

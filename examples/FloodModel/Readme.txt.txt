@@ -51,3 +51,12 @@ Done by the date:
 	- Build a execuateble visualisation file within the flamegpu framework (manipulation of arguments and commands)
 
 - The case is set to 64*64 Grid and DamBreak of 1.875 case study.
+
+
+----------------- MS14Nov2017 ------------------ ( Model Runs Properly)
+- 0XML generatore modified to 128 agents and checked for correct initial values on 25OCT2017
+- XMl converter is added to the example. 
+- 0.xml generator is modified to generate desirable number of agents.
+- Both are in the 'Codes' folder.
+- Not many changes in functions.c and XMLmodelfile is taken in this upload. 
+

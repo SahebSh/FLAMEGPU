@@ -18,6 +18,7 @@
 #
 # input arguments
 # Example python3 model2dot.py -i XMLModelFile.xml -o out.gdot
+# example 2 : python model2dot.py -i XMLModelFile.xml -o out.gdot
 
 
 import getopt, sys
