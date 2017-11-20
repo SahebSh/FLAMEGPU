@@ -56,8 +56,9 @@ parent = root.findall('xagent') # excludes other tags such as 'environment'
 
 for child in parent:
     for node in child:
-        if node.tag != 'name':   # excludes the name of the agent
-           file.write("%s " % node.text)
+       # if node.tag != 'name':   # excludes the name of the agent
+      if node.tag == 'x' or node.tag == 'y' or node.tag == 'z0' or node.tag == 'h' or node.tag == 'qx' or node.tag == 'qy':
+           file.write("%s \t\t " % node.text)
     file.write("\n")
     
 file.close()

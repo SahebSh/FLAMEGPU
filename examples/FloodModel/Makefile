@@ -262,9 +262,9 @@ help:
  
 build: Visualisation_mode Console_mode 
 
-Visualisation_mode:  GameOfLife_vis
+Visualisation_mode:  FloodModel_vis
 
-Console_mode:  GameOfLife_console
+Console_mode:  FloodModel_console
 
 check.deps:
 ifeq ($(SAMPLE_ENABLED),0)
@@ -289,29 +289,29 @@ main_.o: $(SRC_CUDA)main.cu
 	$(EXEC) $(NVCC) $(INCLUDES) $(ALL_CCFLAGS) $(DEBUG) $(GENCODE_FLAGS) $(FLAMELIB) -o $@ -c -DVISUALISATION $<
 
 
-GameOfLife_vis:	BUILD_TYPE=$(Mode_TYPE)_Visualisation
-GameOfLife_vis: io.o simulation.o main_.o visualisation.o
+FloodModel_vis:	BUILD_TYPE=$(Mode_TYPE)_Visualisation
+FloodModel_vis: io.o simulation.o main_.o visualisation.o
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) $(OPENGL_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p $(BIN_DIR)$(BUILD_TYPE)
 	$(EXEC) mv $@ $(BIN_DIR)$(BUILD_TYPE)
-	@echo "LD_LIBRARY_PATH=../../lib/x86_64-linux-gnu/ ./$(BUILD_TYPE)/GameOfLife_vis ../../examples/GameOfLife/$(INPUT_DATA)" > $(BIN_DIR)GameOfLife_vis.sh
-	chmod +x $(BIN_DIR)GameOfLife_vis.sh
+	@echo "LD_LIBRARY_PATH=../../lib/x86_64-linux-gnu/ ./$(BUILD_TYPE)/FloodModel_vis ../../examples/FloodModel/$(INPUT_DATA)" > $(BIN_DIR)FloodModel_vis.sh
+	chmod +x $(BIN_DIR)FloodModel_vis.sh
 
 
-GameOfLife_console: BUILD_TYPE=$(Mode_TYPE)_Console
-GameOfLife_console: io.o simulation.o  main.o 
+FloodModel_console: BUILD_TYPE=$(Mode_TYPE)_Console
+FloodModel_console: io.o simulation.o  main.o 
 	$(EXEC) $(NVCC) $(ALL_LDFLAGS) $(GENCODE_FLAGS) -o $@ $+ $(LIBRARIES)
 	$(EXEC) mkdir -p $(BIN_DIR)$(BUILD_TYPE)
 	$(EXEC) mv $@ $(BIN_DIR)$(BUILD_TYPE)
-	@echo ./$(BUILD_TYPE)/GameOfLife_console ../../examples/GameOfLife/$(INPUT_DATA) '$$'{1:-1}> $(BIN_DIR)GameOfLife_console.sh
-	chmod +x $(BIN_DIR)GameOfLife_console.sh
+	@echo ./$(BUILD_TYPE)/FloodModel_console ../../examples/FloodModel/$(INPUT_DATA) '$$'{1:-1}> $(BIN_DIR)FloodModel_console.sh
+	chmod +x $(BIN_DIR)FloodModel_console.sh
 
 
-run_console: GameOfLife_console
-	cd $(BIN_DIR) && ./GameOfLife_console.sh $(iter)
+run_console: FloodModel_console
+	cd $(BIN_DIR) && ./FloodModel_console.sh $(iter)
 
-run_vis: GameOfLife_vis
-	cd $(BIN_DIR) && ./GameOfLife_vis.sh
+run_vis: FloodModel_vis
+	cd $(BIN_DIR) && ./FloodModel_vis.sh
 clean:
 	rm -f *.o
 	rm -rf $(SRC_CUDA)*
