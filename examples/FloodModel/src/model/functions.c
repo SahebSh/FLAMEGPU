@@ -4,7 +4,7 @@
 
 #include "header.h"
 #include "cutil_math.h"
-//#include "math.h"
+
 
 
 #define PI 3.1415f
@@ -19,6 +19,7 @@
 #define DEBUG_LOG_POSITION( name, position )
 #endif
 
+//#define SIZE 64 // added by MS20NOV2017
 #define epsilon 1.0e-3
 #define emsmall 1.0e-12
 #define GRAVITY 9.80665 
@@ -26,8 +27,10 @@
 #define CFL 0.5
 #define TOL_H 0.001
 #define TIMESTEP 0.017
-#define DXL 1.171875
-#define DYL 0.468750
+//#define DXL 1.171875
+//#define DYL 0.468750
+#define DXL 1.5625
+#define DYL 1.5625
 
 #define BIG_NUMBER 800000             // Used in WetDryMessage to skip extra calculations MS05Sep2017
 
@@ -283,7 +286,7 @@ inline __device__ LFVResult LFV(const AgentFlowData& FlowData)
 	LFVResult result;
 
 
-	result.h_face = FlowData.h;
+	result.h_face  = FlowData.h;
 
 	result.et_face = FlowData.et;
 
@@ -298,7 +301,103 @@ __FLAME_GPU_FUNC__ int PrepareSpaceOperator(xmachine_memory_FloodCell* agent, xm
 {
 	AgentFlowData FlowData = GetFlowDataFromAgent(agent);
 
+	AgentFlowData EastBound;
+	AgentFlowData WestBound;
+	AgentFlowData NorthBound;
+	AgentFlowData SouthBound;
+
+
+	centbound(agent, FlowData, EastBound);
+	centbound(agent, FlowData, WestBound);
+	centbound(agent, FlowData, NorthBound);
+	centbound(agent, FlowData, SouthBound);
+
+
 	LFVResult faceLFV = LFV(FlowData);
+	////EAST FACE
+	//agent->etFace_E = faceLFV.et_face;
+	//agent->hFace_E  = faceLFV.h_face;
+	//agent->qxFace_E = faceLFV.qFace.x;
+	//agent->qyFace_E = faceLFV.qFace.y;
+
+	////WEST FACE
+	//agent->etFace_W = faceLFV.et_face;
+	//agent->hFace_W  = faceLFV.h_face;
+	//agent->qxFace_W = faceLFV.qFace.x;
+	//agent->qyFace_W = faceLFV.qFace.y;
+
+	////NORTH FACE
+	//agent->etFace_N = faceLFV.et_face;
+	//agent->hFace_N  = faceLFV.h_face;
+	//agent->qxFace_N = faceLFV.qFace.x;
+	//agent->qyFace_N = faceLFV.qFace.y;
+
+	////SOUTH FACE
+	//agent->etFace_S = faceLFV.et_face;
+	//agent->hFace_S  = faceLFV.h_face;
+	//agent->qxFace_S = faceLFV.qFace.x;
+	//agent->qyFace_S = faceLFV.qFace.y;
+	//
+	//if (agent->x == SIZE)
+	//{
+	//	agent->etFace_E = EastBound.et;
+	//	agent->hFace_E = EastBound.h;
+	//	agent->qxFace_E = EastBound.qx;
+	//	agent->qyFace_E = EastBound.qy;
+	//}
+	//else
+	//{
+	//	agent->etFace_E = faceLFV.et_face;
+	//	agent->hFace_E = faceLFV.h_face;
+	//	agent->qxFace_E = faceLFV.qFace.x;
+	//	agent->qyFace_E = faceLFV.qFace.y;
+	//}
+
+	//if (agent->x == 1)
+	//{
+	//	agent->etFace_W = WestBound.et;
+	//	agent->hFace_W = WestBound.h;
+	//	agent->qxFace_W = WestBound.qx;
+	//	agent->qyFace_W = WestBound.qy;
+	//}
+	//else
+	//{
+	//	agent->etFace_W = faceLFV.et_face;
+	//	agent->hFace_W  = faceLFV.h_face;
+	//	agent->qxFace_W = faceLFV.qFace.x;
+	//	agent->qyFace_W = faceLFV.qFace.y;
+	//}
+
+	//if (agent->y == SIZE)
+	//{
+	//	agent->etFace_N = NorthBound.et;
+	//	agent->hFace_N = NorthBound.h;
+	//	agent->qxFace_N = NorthBound.qx;
+	//	agent->qyFace_N = NorthBound.qy;
+	//}
+	//else
+	//{
+	//	agent->etFace_N = faceLFV.et_face;
+	//	agent->hFace_N  = faceLFV.h_face;
+	//	agent->qxFace_N = faceLFV.qFace.x;
+	//	agent->qyFace_N = faceLFV.qFace.y;
+	//}
+
+	//if (agent->y == 1)
+	//{
+	//	agent->etFace_S = SouthBound.et;
+	//	agent->hFace_S  = SouthBound.h;
+	//	agent->qxFace_S = SouthBound.qx;
+	//	agent->qyFace_S = SouthBound.qy;
+	//}
+	//else
+	//{
+	//	agent->etFace_S = faceLFV.et_face;
+	//	agent->hFace_S  = faceLFV.h_face;
+	//	agent->qxFace_S = faceLFV.qFace.x;
+	//	agent->qyFace_S = faceLFV.qFace.y;
+	//}
+
 
 	//EAST FACE
 	agent->etFace_E = faceLFV.et_face;
@@ -774,7 +873,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 	double qx_R = -qx_L;
 	double qy_R = -qy_L;
-	//double2 q_R = -q_L; // -q_L changed to q_L MS15Nov2017
+
 
 
 	double z_F    = 0.0;
@@ -827,7 +926,6 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 	qx_L = -qx_R;
 	qy_L = -qy_R;
-	//q_L  = q_R; // -qx_R changed to qx_R MS15Nov2017
 
 
 	//Wetting and drying "depth-positivity-preserving" reconstructions
@@ -1117,9 +1215,6 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	agent->qx = agent->qx -(TIMESTEP / DXL) * (FPlus.y - FMinus.y) - (TIMESTEP / DYL) * (GPlus.y - GMinus.y) + TIMESTEP * SS_2;
 	agent->qy = agent->qy -(TIMESTEP / DXL) * (FPlus.z - FMinus.z) - (TIMESTEP / DYL) * (GPlus.z - GMinus.z) + TIMESTEP * SS_3;
 
-	//double L0h  = (-(TIMESTEP / DXL) * (FPlus.x - FMinus.x) - (TIMESTEP / DYL) * (GPlus.x - GMinus.x) + TIMESTEP * SS_1 ) / TIMESTEP;
-	//double L0qx = (-(TIMESTEP / DXL) * (FPlus.y - FMinus.y) - (TIMESTEP / DYL) * (GPlus.y - GMinus.y) + TIMESTEP * SS_2 ) / TIMESTEP;
-	//double L0qy = (-(TIMESTEP / DXL) * (FPlus.z - FMinus.z) - (TIMESTEP / DYL) * (GPlus.z - GMinus.z) + TIMESTEP * SS_3 ) / TIMESTEP;
 
 
 	//printf("x =%d \t\t y=%d L0h=%f \t L0qx=%f  \t L0qy=%f  \n",agent->x, agent->y, L0h, L0qx, L0qy);
@@ -1161,18 +1256,6 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 }
 
 //
-//inline __device__ double3 Sb(double hx_mod, double hy_mod, double zprime_x, double zprime_y)
-//{
-//	// This function outputs the bed slope source terms for a specific flow data
-//	double3 result;
-//
-//	result.x = 0.0;
-//	result.y = -GRAVITY * hx_mod * zprime_x;
-//	result.z = -GRAVITY * hy_mod * zprime_y;
-//
-//	return result;
-//
-//}
 
 
 inline __device__ double3 F_SWE(double hh, double qx, double qy)

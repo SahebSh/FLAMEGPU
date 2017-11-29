@@ -29,10 +29,10 @@ int main()
 	int          inDomain = 1;
 
 	// Specifying the size of domain   
-	int xmin = 0;
-	int xmax = 75;
-	int ymin = 0;
-	int ymax = 30;
+	int xmin = -50;//0;
+	int xmax = 50;//75;
+	int ymin = -50;//0;
+	int ymax = 50;//30;
 
 	//********************** This is to specify the number of agents, which is supposed to be square ********************* 
 	//int nx = 128;//256;
@@ -80,7 +80,12 @@ int main()
 	ly = ymax - ymin;
 	dx = (double)lx / (double)SIZE;
 	dy = (double)ly / (double)SIZE;
-
+	
+	FILE *fp2 = fopen("InitialData.txt", "w");
+    if (fp2 == NULL){
+       printf("Error opening file!\n");
+    exit(1);
+    }
 
 	fprintf(fp, "<states>\n");
 	fprintf(fp, "<itno>0</itno>\n");
@@ -99,10 +104,10 @@ int main()
 			x_int[i] = xmin + i  * dx;
 			y_int[j] = ymin + j  * dy;
 
-			z0_int[i][j] = bed_data((double)x_int[i], (double)y_int[j]);
-			h_int[i][j]  = initial_flow((double)x_int[i], (double)y_int[j], (double)z0_int[i][j]);
-			qx_int[i][j] = qx_initial; // Temporary assigned value
-			qy_int[i][j] = qy_initial; // Temporary assigned value (However it should be 0 )
+//			z0_int[i][j] = bed_data((double)x_int[i], (double)y_int[j]);
+//			h_int[i][j]  = initial_flow((double)x_int[i], (double)y_int[j], (double)z0_int[i][j]);
+//			qx_int[i][j] = qx_initial; // Temporary assigned value
+//			qy_int[i][j] = qy_initial; // Temporary assigned value (However it should be 0 )
 		}
 	}
 
@@ -124,13 +129,19 @@ int main()
 						{
 							x[i]  = 0.5 * ( x_int[i] +  x_int[i-1]); // x_int[i+1] used to be x_int[i-1] in all the codes, changed to see the differences
 							y[j]  = 0.5 * ( y_int[j] +  y_int[j-1]);
-								
+							
+										z0[i][j] = bed_data((double)x[i], (double)y[j]);
+										h[i][j]  = initial_flow((double)x[i], (double)y[j], (double)z0[i][j]);
+										qx[i][j] = qx_initial;
+										qy[i][j] = qy_initial;
+											
 			                    
-			                z0[i][j] =  (z0_int[i][j] + z0_int[i-1][j] + z0_int[i][j-1] + z0_int[i-1][j-1])/4;
-			                h[i][j]  =  ( h_int[i][j] +  h_int[i-1][j] +  h_int[i][j-1] +  h_int[i-1][j-1])/4;
-			                qx[i][j] =  (qx_int[i][j] + qx_int[i-1][j] + qx_int[i][j-1] + qx_int[i-1][j-1])/4;
-			                qy[i][j] =  (qy_int[i][j] + qy_int[i-1][j] + qy_int[i][j-1] + qy_int[i-1][j-1])/4;
+//			                z0[i][j] =  (z0_int[i][j] + z0_int[i-1][j] + z0_int[i][j-1] + z0_int[i-1][j-1])/4;
+//			                h[i][j]  =  ( h_int[i][j] +  h_int[i-1][j] +  h_int[i][j-1] +  h_int[i-1][j-1])/4;
+//			                qx[i][j] =  (qx_int[i][j] + qx_int[i-1][j] + qx_int[i][j-1] + qx_int[i-1][j-1])/4;
+//			                qy[i][j] =  (qy_int[i][j] + qy_int[i-1][j] + qy_int[i][j-1] + qy_int[i-1][j-1])/4;
 
+							fprintf(fp2,"%d\t\t %d\t\t %f \t\t %f \t\t %f \t\t %f \t\t\n", i,j,z0[i][j],h[i][j],qx[i][j],qy[i][j]);
 
 			//                   
 			hFace_E = h[i][j];
@@ -194,18 +205,35 @@ double initial_flow(double x_int, double y_int, double z0_int)
 {
 	// case 1 - Fully wet with no topography
 
-	double etta = 1.875;
-	double h;
+//	double etta = 1.875;//1.875;
+//	double h;
 
-	if (x_int <= 16) {
-	//	if (y_int <= 16) {
-		//h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
-		h = etta - z0_int;//std::max(0.0, etta - z0_int); 
-	}
-	else{
-		h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
-		//h = 0.0;
-	}
+//	if (x_int <= 16) {
+//	//	if (y_int <= 16) {
+//		//h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
+//		h = etta - z0_int;//std::max(0.0, etta - z0_int); 
+//	}
+//	else{
+//		h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
+//		//h = 0.0;
+//	}
+	
+	// case 2 - Radial Dam break , wet
+	double etta = 2.5;//1.875;
+    double x_o = 0.0;
+    double y_o = 0.0;
+    double radius = 2.5;
+    double h;
+       
+       if (sqrt(pow((x_int - x_o),2) + pow((y_int - y_o),2)) <= radius)
+       {
+       	h = etta - z0_int;
+	   }
+	   else
+	   {
+	   	h = 0.5;
+	   }
+	   
 
 	return h;
 }
