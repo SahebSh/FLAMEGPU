@@ -60,3 +60,7 @@ Done by the date:
 - Both are in the 'Codes' folder.
 - Not many changes in functions.c and XMLmodelfile is taken in this upload. 
 
+----------------- MS13Dec2017 ------------------ 
+- CUDA 8.0 replaced by CUDA 7.0 (personal computer issue)
+- Code has been refined in some terms. 
+- This update is a backup, as it has been validated in some test cases and the results are satisfying enough. 

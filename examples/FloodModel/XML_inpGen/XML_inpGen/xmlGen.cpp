@@ -25,14 +25,14 @@ int main()
 
 	// Model constant :  they are imported to the output file          
 
-	double       timestep = 0.5; // assigned Temporary 
+	//double       timestep = 0.5; // assigned Temporary 
 	int          inDomain = 1;
 
 	// Specifying the size of domain   
-	int xmin = -50;//0;
-	int xmax = 50;//75;
-	int ymin = -50;//0;
-	int ymax = 50;//30;
+	int xmin = -20;//0;//0;
+	int xmax = 20;//75;//75;
+	int ymin = -20;//0;//0;
+	int ymax = 20;//30;//30;
 
 	//********************** This is to specify the number of agents, which is supposed to be square ********************* 
 	//int nx = 128;//256;
@@ -127,7 +127,7 @@ int main()
 				for (j=1 ; j< SIZE + 1; j++)
 					{
 						{
-							x[i]  = 0.5 * ( x_int[i] +  x_int[i-1]); // x_int[i+1] used to be x_int[i-1] in all the codes, changed to see the differences
+							x[i]  = 0.5 * ( x_int[i] +  x_int[i-1]); //
 							y[j]  = 0.5 * ( y_int[j] +  y_int[j-1]);
 							
 										z0[i][j] = bed_data((double)x[i], (double)y[j]);
@@ -203,25 +203,28 @@ int main()
 
 double initial_flow(double x_int, double y_int, double z0_int)
 {
-	// case 1 - Fully wet with no topography
-
-//	double etta = 1.875;//1.875;
+	 //case 1 - 1D-Fully wet with no topography
+//	double etta = 1.875;//1.875;//1.875;
 //	double h;
 
-//	if (x_int <= 16) {
-//	//	if (y_int <= 16) {
-//		//h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
-//		h = etta - z0_int;//std::max(0.0, etta - z0_int); 
+//	if (x_int < 16) 
+//	{
+//	if (y_int < 16) 
+//	{
+//		
+////		h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
+//			h = etta - z0_int;//std::max(0.0, etta - z0_int); 
 //	}
-//	else{
-//		h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
-//		//h = 0.0;
+//	else
+//	{
+////			h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
+//		h = 0.0;
 //	}
-	
+//	
 	// case 2 - Radial Dam break , wet
 	double etta = 2.5;//1.875;
-    double x_o = 0.0;
-    double y_o = 0.0;
+    double x_o = 0;
+    double y_o = 0;
     double radius = 2.5;
     double h;
        
@@ -231,10 +234,11 @@ double initial_flow(double x_int, double y_int, double z0_int)
 	   }
 	   else
 	   {
-	   	h = 0.5;
+	   	h = 0;
 	   }
 	   
 
+	   
 	return h;
 }
 //    

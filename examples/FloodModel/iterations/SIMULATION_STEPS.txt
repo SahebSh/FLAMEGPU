@@ -1,0 +1,19 @@
+*** In this notepad the steps to be taken in the simulations of a flood model upon FLAME-GPU 
+which have been brought to eliminate the chance of failure and abnormal results.
+ 
+
+1- Initial condition (initial state of variables) needs to be generated, using xmlGen.cpp located in XML_inpGen folder. 
+This can be done by manipulating data (using c-syntax) and executing the program. this is usually done by Cygwin terminal 
+and command : g++ -std=c++11 xmlGen.cpp -o xmlGen
+then, 0.xml file is generated.
+
+2- Copying 0.xml file to iterations folder. which allows the program to read the initial data.
+
+NOTICE : iteration 0 is taken as the first iteration. so, if anyone needs 276th iteration data, they have to look for the data
+in 275th iteration. 
+
+3- Function.c needs to be checked. Due to different test cases and different dimensions of the domain, 
+DXL and DYL needs to be assigned carefully with respect to the initial condition. TIMESTEP is assigned as a constant so far.
+(to date ; )
+
+ 

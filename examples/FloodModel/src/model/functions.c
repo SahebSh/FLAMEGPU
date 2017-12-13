@@ -21,16 +21,19 @@
 
 //#define SIZE 64 // added by MS20NOV2017
 #define epsilon 1.0e-3
-#define emsmall 1.0e-12
+#define emsmall 1.0e-12 //0.000000000001 //1.0e-12
 #define GRAVITY 9.80665 
 #define GLOBAL_MANNING 0.018500
 #define CFL 0.5
-#define TOL_H 0.001
+#define TOL_H 10.0e-4
 #define TIMESTEP 0.017
 //#define DXL 1.171875
 //#define DYL 0.468750
-#define DXL 1.5625
-#define DYL 1.5625
+//#define DXL 1.171875 // Domain 0:75 and N=64 1D dambreak test cases
+//#define DYL 0.46875 // Domain 0:30 and N=64
+#define DXL 0.625 // Domain -20:20 and N=64 Radial dambreak test cases
+#define DYL 0.625 // Domain -20:20 and N=64
+
 
 #define BIG_NUMBER 800000             // Used in WetDryMessage to skip extra calculations MS05Sep2017
 
@@ -61,7 +64,8 @@ struct __align__(16) AgentFlowData
 
 struct __align__(16) LFVResult
 {
-	__device__ LFVResult(double _h_face, double _et_face, double2 _qFace)
+	// Commented by MS12DEC2017 12:24pm
+	/*__device__ LFVResult(double _h_face, double _et_face, double2 _qFace)
 	{
 		h_face = _h_face;
 		et_face = _et_face;
@@ -74,7 +78,7 @@ struct __align__(16) LFVResult
 		et_face = 0.0;
 		qFace = make_double2(0.0, 0.0);
 
-	}
+	}*/
 
 	double  h_face;
 	double  et_face;
@@ -113,9 +117,9 @@ inline __device__ void centbound(xmachine_memory_FloodCell* agent, const AgentFl
 
 	centBoundData.et = FlowData.et; // added by MS27Sep2017 // 
 
-	centBoundData.qx = -FlowData.qx; //Minus removed -FlowData.qx
+	centBoundData.qx = -FlowData.qx; //
 
-	centBoundData.qy = -FlowData.qy; //Minus removed
+	centBoundData.qy = -FlowData.qy; //
 
 }
 
@@ -135,8 +139,10 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 
 	double2 result;
 	
-	//result.x = 0.0;
-	//result.y = 0.0;
+	//// added to test the case with no friction MS01Dec2017
+	//result.x = qx_loc;
+	//result.y = qy_loc;
+
 	if (h_loc > TOL_H)
 	{
 
@@ -200,8 +206,6 @@ inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, doubl
 		agent->qx = frict_Q.x;
 		agent->qy = frict_Q.y;
 
-
-
 	}
 
 }
@@ -237,11 +241,12 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 	if (agent->inDomain == 1)
 	{
 
-		//looking up neighbours values for wet/dry tracking "THIS NEEDS TO BE ANALYSED carefully MS05Sep2017"
+		//looking up neighbours values for wet/dry tracking
 		xmachine_message_WetDryMessage* msg = get_first_WetDryMessage_message<DISCRETE_2D>(WetDryMessage_messages, agent->x, agent->y);
 
 		double maxHeight = agent->minh_loc;
 
+		// MS COMMENTS : WHICH HEIGH OF NEIGHBOUR IS BEING CHECKED HERE? ONE AGAINST OTHER AGENTS ? POSSIBLE ?
 		while (msg)
 		{
 			if (msg->inDomain == 1)
@@ -257,16 +262,15 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 			msg = get_next_WetDryMessage_message<DISCRETE_2D>(msg, WetDryMessage_messages);
 		}
 
+		
 		maxHeight = agent->minh_loc;
-
 		if (maxHeight > TOL_H) // if the Height of water is not less than TOL_H => the friction is needed to be taken into account MS05Sep2017
 		{
-			Friction_Implicit(agent, TIMESTEP); // TIMESTEP has been defined in agents' initial condition MS05Sep2017
+			Friction_Implicit(agent, TIMESTEP); //
 		}
 		else
 		{
-			//agent->qx = 0.0; //added by MS28Sep2017
-			//agent->qy = 0.0; //added by MS28Sep2017
+
 			//need to go high, so that it won't affect min calculation when it is tested again . Needed to be tested MS05Sep2017 which is now temporary. needs to be corrected somehow
 			agent->minh_loc = BIG_NUMBER;
 		}
@@ -301,16 +305,16 @@ __FLAME_GPU_FUNC__ int PrepareSpaceOperator(xmachine_memory_FloodCell* agent, xm
 {
 	AgentFlowData FlowData = GetFlowDataFromAgent(agent);
 
-	AgentFlowData EastBound;
-	AgentFlowData WestBound;
-	AgentFlowData NorthBound;
-	AgentFlowData SouthBound;
+	//AgentFlowData EastBound;
+	//AgentFlowData WestBound;
+	//AgentFlowData NorthBound;
+	//AgentFlowData SouthBound;
 
 
-	centbound(agent, FlowData, EastBound);
-	centbound(agent, FlowData, WestBound);
-	centbound(agent, FlowData, NorthBound);
-	centbound(agent, FlowData, SouthBound);
+	//centbound(agent, FlowData, EastBound);
+	//centbound(agent, FlowData, WestBound);
+	//centbound(agent, FlowData, NorthBound);
+	//centbound(agent, FlowData, SouthBound);
 
 
 	LFVResult faceLFV = LFV(FlowData);
@@ -545,27 +549,18 @@ inline __device__ void WD(double h_L,
 		et_L_star = et_L_star - delta;
 		et_R_star = et_R_star - delta;
 	}
-	else
-	{
-		z_LR = z_LR;
-		et_L_star = et_L_star;
-		et_R_star = et_R_star;
-	}
+	//else
+	//{
+	//	z_LR = z_LR;
+	//	et_L_star = et_L_star;
+	//	et_R_star = et_R_star;
+	//}
 
 
 	h_L_star = et_L_star - z_LR;
 	h_R_star = et_R_star - z_LR;
 
-	// Commented by MS02Oct2017 - changed to 'C' project - based on 'h'
-	/*if (delta > 0.0)
-	{
-	z_LR = z_LR - delta;
-	et_L_star = et_L_star - delta;
-	et_R_star = et_R_star - delta;
-	}
 
-	h_L_star = et_L_star - z_LR;
-	h_R_star = et_R_star - z_LR; */
 }
 
 
@@ -661,7 +656,7 @@ inline __device__ double3 hll_x(double h_L, double h_R, double qx_L, double qx_R
 			F_face.y = F_L.y;
 			F_face.z = F_L.z;
 
-			return F_L; // Lewis part of the code
+			//return F_L; // 
 		}
 
 		else if ((s_L < 0.0) && s_R >= 0.0)
@@ -697,7 +692,7 @@ inline __device__ double3 hll_x(double h_L, double h_R, double qx_L, double qx_R
 			F_face.y = F_R.y;
 			F_face.z = F_R.z;
 			//	
-			//return F_R; // Lewis part of the code
+			//return F_R; // 
 		}
 
 		return F_face;
@@ -798,7 +793,7 @@ inline __device__ double3 hll_y(double h_S, double h_N, double qx_S, double qx_N
 			G_face.y = G_S.y;
 			G_face.z = G_S.z;
 
-			return G_S; //the Lewis code part
+			//return G_S; //
 
 		}
 
@@ -834,7 +829,7 @@ inline __device__ double3 hll_y(double h_S, double h_N, double qx_S, double qx_N
 			G_face.y = G_N.y;
 			G_face.z = G_N.z;
 
-			//return G_N; // Lewis part of the code
+			//return G_N; //
 			//	
 		}
 
@@ -843,7 +838,6 @@ inline __device__ double3 hll_y(double h_S, double h_N, double qx_S, double qx_N
 	}
 	//	
 }
-
 
 __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* agent, xmachine_message_SpaceOperatorMessage_list* SpaceOperatorMessage_messages)
 {
@@ -901,7 +895,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	// Initialising WESTERN face
 
 	double zbF_W = agent->z0;
-	double hf_W = 0.0;
+	double hf_W  = 0.0;
 	double qxf_W = 0.0;
 	double qyf_W = 0.0;
 
@@ -968,7 +962,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	et_R = et_L;
 
 	qx_R  = -qx_L;
-	qy_R  = -qy_L; // -q_L changed to q_L MS15Nov2017
+	qy_R  = -qy_L; // 
 
 
 	//Wetting and drying "depth-positivity-preserving" reconstructions
