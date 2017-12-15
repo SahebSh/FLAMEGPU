@@ -67,15 +67,17 @@ struct __align__(16) LFVResult
 	// Commented by MS12DEC2017 12:24pm
 	/*__device__ LFVResult(double _h_face, double _et_face, double2 _qFace)
 	{
-	h_face = _h_face;
-	et_face = _et_face;
-	qFace = _qFace;
+		h_face = _h_face;
+		et_face = _et_face;
+		qFace = _qFace;
 	}
+
 	__device__ LFVResult()
 	{
-	h_face = 0.0;
-	et_face = 0.0;
-	qFace = make_double2(0.0, 0.0);
+		h_face = 0.0;
+		et_face = 0.0;
+		qFace = make_double2(0.0, 0.0);
+
 	}*/
 
 	double  h_face;
@@ -90,7 +92,7 @@ inline __device__ AgentFlowData GetFlowDataFromAgent(xmachine_memory_FloodCell* 
 	AgentFlowData result;
 
 	result.z0 = agent->z0;
-	result.h = agent->h;
+	result.h  = agent->h;
 	result.et = agent->z0 + agent->h; // added by MS27Sep2017
 	result.qx = agent->qx;
 	result.qy = agent->qy;
@@ -111,7 +113,7 @@ inline __device__ void centbound(xmachine_memory_FloodCell* agent, const AgentFl
 	//Default is a reflective boundary
 	centBoundData.z0 = FlowData.z0;
 
-	centBoundData.h = FlowData.h;
+	centBoundData.h  = FlowData.h;
 
 	centBoundData.et = FlowData.et; // added by MS27Sep2017 // 
 
@@ -136,7 +138,7 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 
 
 	double2 result;
-
+	
 	//// added to test the case with no friction MS01Dec2017
 	//result.x = qx_loc;
 	//result.y = qy_loc;
@@ -218,7 +220,7 @@ __FLAME_GPU_FUNC__ int PrepareWetDry(xmachine_memory_FloodCell* agent, xmachine_
 
 		double hp = FlowData.h; // = agent->h ; MS02OCT2017
 
-
+		
 		agent->minh_loc = hp;
 
 
@@ -260,7 +262,7 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 			msg = get_next_WetDryMessage_message<DISCRETE_2D>(msg, WetDryMessage_messages);
 		}
 
-
+		
 		maxHeight = agent->minh_loc;
 		if (maxHeight > TOL_H) // if the Height of water is not less than TOL_H => the friction is needed to be taken into account MS05Sep2017
 		{
@@ -288,7 +290,7 @@ inline __device__ LFVResult LFV(const AgentFlowData& FlowData)
 	LFVResult result;
 
 
-	result.h_face = FlowData.h;
+	result.h_face  = FlowData.h;
 
 	result.et_face = FlowData.et;
 
@@ -403,25 +405,25 @@ __FLAME_GPU_FUNC__ int PrepareSpaceOperator(xmachine_memory_FloodCell* agent, xm
 
 	//EAST FACE
 	agent->etFace_E = faceLFV.et_face;
-	agent->hFace_E = faceLFV.h_face;
+	agent->hFace_E  = faceLFV.h_face;
 	agent->qxFace_E = faceLFV.qFace.x;
 	agent->qyFace_E = faceLFV.qFace.y;
 
 	//WEST FACE
 	agent->etFace_W = faceLFV.et_face;
-	agent->hFace_W = faceLFV.h_face;
+	agent->hFace_W  = faceLFV.h_face;
 	agent->qxFace_W = faceLFV.qFace.x;
 	agent->qyFace_W = faceLFV.qFace.y;
 
 	//NORTH FACE
 	agent->etFace_N = faceLFV.et_face;
-	agent->hFace_N = faceLFV.h_face;
+	agent->hFace_N  = faceLFV.h_face;
 	agent->qxFace_N = faceLFV.qFace.x;
 	agent->qyFace_N = faceLFV.qFace.y;
 
 	//SOUTH FACE
 	agent->etFace_S = faceLFV.et_face;
-	agent->hFace_S = faceLFV.h_face;
+	agent->hFace_S  = faceLFV.h_face;
 	agent->qxFace_S = faceLFV.qFace.x;
 	agent->qyFace_S = faceLFV.qFace.y;
 
@@ -488,7 +490,7 @@ inline __device__ void WD(double h_L,
 	{
 		u_L = 0.0;
 		v_L = 0.0;
-
+		
 	}
 	else
 	{
@@ -501,7 +503,7 @@ inline __device__ void WD(double h_L,
 	{
 		u_R = 0.0;
 		v_R = 0.0;
-
+		
 	}
 	else
 	{
@@ -847,178 +849,197 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 	// Initialising EASTER face
 
-	double zbF_E = agent->z0;
-	double hf_E = 0.0;
-	double qxf_E = 0.0;
-	double qyf_E = 0.0;
+	//double zbF_E = agent->z0; 
+	//double hf_E  = 0.0;
+	//double qxf_E = 0.0;
+	//double qyf_E = 0.0;
 
-	double h_L = agent->hFace_E;
-	double et_L = agent->etFace_E;
+	//double h_L  = agent->hFace_E;
+	//double et_L = agent->etFace_E;
 
-	double qx_L = agent->qxFace_E; // added MS15Nov2017
-	double qy_L = agent->qyFace_E;// MS15Nov2017
-	//double2 q_L = make_double2(agent->qxFace_E, agent->qyFace_E);  commented MS15Nov2017
-
-
-	double h_R = h_L;
-	double et_R = et_L;
-
-	double qx_R = -qx_L;
-	double qy_R = qy_L;
+	//double qx_L = agent->qxFace_E; // added MS15Nov2017
+	//double qy_L = agent->qyFace_E;// MS15Nov2017
+	////double2 q_L = make_double2(agent->qxFace_E, agent->qyFace_E);  commented MS15Nov2017
 
 
+	//double h_R = h_L;
+	//double et_R = et_L;
 
-	double z_F = 0.0;
-	double h_F_L = 0.0;
-	double h_F_R = 0.0;
-	double qx_F_L = 0.0;
-	double qx_F_R = 0.0;
-	double qy_F_L = 0.0;
-	double qy_F_R = 0.0;
-
-	//Wetting and drying "depth-positivity-preserving" reconstructions
-	//WD(h_L, h_R, et_L, et_R, q_L.x, q_R.x, q_L.y, q_R.y, EAST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
-	WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, EAST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
-
-	// Flux accross the cell
-	FPlus = hll_x(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
-
-	// Local flow data restrictions at the EASTERN face
-	zbF_E = z_F;
-	hf_E = h_F_L;
-	qxf_E = qx_F_L;
-	qyf_E = qy_F_L;
+	//double qx_R = -qx_L;
+	//double qy_R = -qy_L;
 
 
-	// Initialising WESTERN face
 
-	double zbF_W = agent->z0;
-	double hf_W = 0.0;
-	double qxf_W = 0.0;
-	double qyf_W = 0.0;
+	//double z_F    = 0.0;
+	//double h_F_L  = 0.0; 
+	//double h_F_R  = 0.0;
+	//double qx_F_L = 0.0;
+	//double qx_F_R = 0.0;
+	//double qy_F_L = 0.0;
+	//double qy_F_R = 0.0;
 
-	z_F = 0.0;
-	h_F_L = 0.0;
-	h_F_R = 0.0;
-	qx_F_L = 0.0;
-	qx_F_R = 0.0;
-	qy_F_L = 0.0;
-	qy_F_R = 0.0;
+	////Wetting and drying "depth-positivity-preserving" reconstructions
+	////WD(h_L, h_R, et_L, et_R, q_L.x, q_R.x, q_L.y, q_R.y, EAST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+	//WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, EAST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-	h_R = agent->hFace_W;
-	et_R = agent->etFace_W;
+	//// Flux accross the cell
+	//FPlus = hll_x(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-	qx_R = agent->qxFace_W;
-	qy_R = agent->qyFace_W;
-	//q_R  = make_double2(agent->qxFace_W, agent->qyFace_W);
-
-
-	h_L = h_R;
-	et_L = et_R;
-
-	qx_L = -qx_R;
-	qy_L = qy_R;
+	//// Local flow data restrictions at the EASTERN face
+	//zbF_E = z_F;
+	//hf_E  = h_F_L;
+	//qxf_E = qx_F_L;
+	//qyf_E = qy_F_L;
 
 
-	//Wetting and drying "depth-positivity-preserving" reconstructions
-	WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, WEST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+	//// Initialising WESTERN face
 
-	// Flux accross the cell
-	FMinus = hll_x(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+	//double zbF_W = agent->z0;
+	//double hf_W  = 0.0;
+	//double qxf_W = 0.0;
+	//double qyf_W = 0.0;
 
-	// Local flow data restrictions at the EASTERN face
-	zbF_W = z_F;
-	hf_W = h_F_R;
-	qxf_W = qx_F_R;
-	qyf_W = qy_F_R;
+	//z_F    = 0.0;
+	//h_F_L  = 0.0;
+	//h_F_R  = 0.0;
+	//qx_F_L = 0.0;
+	//qx_F_R = 0.0;
+	//qy_F_L = 0.0;
+	//qy_F_R = 0.0;
 
+	//h_R  = agent->hFace_W;
+	//et_R = agent->etFace_W;
 
-	// Initialising NORTHERN face
-
-	double zbF_N = agent->z0;
-	double hf_N = 0.0;
-	double qxf_N = 0.0;
-	double qyf_N = 0.0;
-
-	z_F = 0.0;
-	h_F_L = 0.0;
-	h_F_R = 0.0;
-	qx_F_L = 0.0;
-	qx_F_R = 0.0;
-	qy_F_L = 0.0;
-	qy_F_R = 0.0;
-
-	h_L = agent->hFace_N;
-	et_L = agent->etFace_N;
-
-	qx_L = agent->qxFace_N;
-	qy_L = agent->qyFace_N;
-	//q_L  = make_double2(agent->qxFace_N, agent->qyFace_N);
+	//qx_R = agent->qxFace_W;
+	//qy_R = agent->qyFace_W;
+	////q_R  = make_double2(agent->qxFace_W, agent->qyFace_W);
 
 
-	h_R = h_L;
-	et_R = et_L;
+	//h_L  = h_R;
+	//et_L = et_R;
 
-	qx_R = qx_L;
-	qy_R = -qy_L; // 
-
-
-	//Wetting and drying "depth-positivity-preserving" reconstructions
-	WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, NORTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
-
-	// Flux accross the cell
-	GPlus = hll_y(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
-
-	// Local flow data restrictions at the EASTERN face
-	zbF_N = z_F;
-	hf_N = h_F_L;
-	qxf_N = qx_F_L;
-	qyf_N = qy_F_L;
+	//qx_L = -qx_R;
+	//qy_L = -qy_R;
 
 
-	// Initialising SOUTHERN face
+	////Wetting and drying "depth-positivity-preserving" reconstructions
+	//WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, WEST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-	double zbF_S = agent->z0;
-	double hf_S = 0.0;
-	double qxf_S = 0.0;
-	double qyf_S = 0.0;
+	//// Flux accross the cell
+	//FMinus = hll_x(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-	z_F = 0.0;
-	h_F_L = 0.0;
-	h_F_R = 0.0;
-	qx_F_L = 0.0;
-	qx_F_R = 0.0;
-	qy_F_L = 0.0;
-	qy_F_R = 0.0;
+	//// Local flow data restrictions at the EASTERN face
+	//zbF_W = z_F;
+	//hf_W  = h_F_R;
+	//qxf_W = qx_F_R;
+	//qyf_W = qy_F_R;
 
-	h_R = agent->hFace_S;
-	et_R = agent->etFace_S;
+	//
+	//// Initialising NORTHERN face
 
-	qx_R = agent->qxFace_S;
-	qy_R = agent->qyFace_S;
-	//q_R  = make_double2(agent->qxFace_S, agent->qyFace_S);
+	//double zbF_N = agent->z0;
+	//double hf_N  = 0.0;
+	//double qxf_N = 0.0;
+	//double qyf_N = 0.0;
+
+	//z_F = 0.0;
+	//h_F_L = 0.0;
+	//h_F_R = 0.0;
+	//qx_F_L = 0.0;
+	//qx_F_R = 0.0;
+	//qy_F_L = 0.0;
+	//qy_F_R = 0.0;
+
+	//h_L  = agent->hFace_N;
+	//et_L = agent->etFace_N;
+
+	//qx_L = agent->qxFace_N;
+	//qy_L = agent->qyFace_N;
+	////q_L  = make_double2(agent->qxFace_N, agent->qyFace_N);
 
 
-	h_L = h_R;
-	et_L = et_R;
+	//h_R  = h_L;
+	//et_R = et_L;
 
-	qx_L = qx_R;
-	qy_L = -qy_R;
-	//q_L  = q_R; // -q_L changed to q_L MS15Nov2017
+	//qx_R  = -qx_L;
+	//qy_R  = -qy_L; // 
 
 
-	//Wetting and drying "depth-positivity-preserving" reconstructions
-	WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, SOUTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+	////Wetting and drying "depth-positivity-preserving" reconstructions
+	//WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, NORTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-	// Flux accross the cell
-	GMinus = hll_y(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+	//// Flux accross the cell
+	//GPlus = hll_y(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-	// Local flow data restrictions at the EASTERN face
-	zbF_S = z_F;
-	hf_S = h_F_R;
-	qxf_S = qx_F_R;
-	qyf_S = qy_F_R;
+	//// Local flow data restrictions at the EASTERN face
+	//zbF_N = z_F;
+	//hf_N  = h_F_L;
+	//qxf_N = qx_F_L;
+	//qyf_N = qy_F_L;
 
+
+	//// Initialising SOUTHERN face
+
+	//double zbF_S = agent->z0;
+	//double hf_S  = 0.0;
+	//double qxf_S = 0.0;
+	//double qyf_S = 0.0;
+
+	//z_F    = 0.0;
+	//h_F_L  = 0.0;
+	//h_F_R  = 0.0;
+	//qx_F_L = 0.0;
+	//qx_F_R = 0.0;
+	//qy_F_L = 0.0;
+	//qy_F_R = 0.0;
+
+	//h_R  = agent->hFace_S;
+	//et_R = agent->etFace_S;
+
+	//qx_R = agent->qxFace_S;
+	//qy_R = agent->qyFace_S;
+	////q_R  = make_double2(agent->qxFace_S, agent->qyFace_S);
+
+
+	//h_L  = h_R;
+	//et_L = et_R;
+
+	//qx_L = -qx_R;
+	//qy_L = -qy_R;
+	////q_L  = q_R; // -q_L changed to q_L MS15Nov2017
+
+
+	////Wetting and drying "depth-positivity-preserving" reconstructions
+	//WD(h_L, h_R, et_L, et_R, qx_L, qx_R, qy_L, qy_R, SOUTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+
+	//// Flux accross the cell
+	//GMinus = hll_y(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+
+	//// Local flow data restrictions at the EASTERN face
+	//zbF_S = z_F;
+	//hf_S  = h_F_R;
+	//qxf_S = qx_F_R;
+	//qyf_S = qy_F_R;
+	
+double zbF_S ;
+double hf_S ;
+double qxf_S ;
+double qyf_S ;
+
+double zbF_N ;
+double hf_N ;
+double qxf_N ;
+double qyf_N ;
+
+double zbF_W;
+double hf_W ;
+double qxf_W ;
+double qyf_W ;
+
+double zbF_E ;
+double hf_E ;
+double qxf_E;
+double qyf_E;
 
 	xmachine_message_SpaceOperatorMessage* msg = get_first_SpaceOperatorMessage_message<DISCRETE_2D>(SpaceOperatorMessage_messages, agent->x, agent->y);
 
@@ -1027,20 +1048,43 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	{
 		if (msg->inDomain == 1)
 		{
-			//  Local EAST values and Neighbours' WEST Values are NEEDED
-			// EAST PART (PLUS in x direction)
-			//if (msg->x + 1 == agent->x //Previous
-			if (msg->x - 1 == agent->x
+				//  Local EAST values and Neighbours' WEST Values are NEEDED
+				// EAST PART (PLUS in x direction)
+			
+			if (msg->x+1 == agent->x
 				&& agent->y == msg->y)
 			{
-				double& h_R = msg->hFace_W;
-				double& et_R = msg->etFace_W;
-				double2 q_R = make_double2(msg->qFace_X_W, msg->qFace_Y_W);
+				double h_R_E,  h_L_E,  et_R_E, et_L_E;
+				double qx_R_E, qx_L_E, qy_R_E, qy_L_E;
 
+				h_L_E  = agent->hFace_E;
+				et_L_E = agent->etFace_E;
+				qx_L_E = agent->qxFace_E;
+				qy_L_E = agent->qyFace_E;
 
-				double  h_L = agent->hFace_E;
-				double  et_L = agent->etFace_E;
-				double2 q_L = make_double2(agent->qxFace_E, agent->qyFace_E);
+				if (agent->x == 64)
+				{
+					h_R_E  = h_L_E ;
+					et_R_E = et_L_E;
+					qx_R_E = -qx_L_E;
+					qy_R_E = qy_L_E;
+
+				}
+				else
+				{
+					h_R_E  = msg->hFace_W;
+					et_R_E = msg->etFace_W;
+					qx_R_E = msg->qFace_X_W;
+					qy_R_E = msg->qFace_Y_W;
+				}
+				//double& h_R  = msg->hFace_W;
+				//double& et_R = msg->etFace_W;
+				//double2 q_R  = make_double2(msg->qFace_X_W, msg->qFace_Y_W);
+
+				
+				//double  h_L = agent->hFace_E;
+				//double  et_L = agent->etFace_E;
+				//double2 q_L = make_double2(agent->qxFace_E, agent->qyFace_E);
 
 				double z_F = 0.0;
 				double h_F_L = 0.0;
@@ -1049,40 +1093,65 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 				double qx_F_R = 0.0;
 				double qy_F_L = 0.0;
 				double qy_F_R = 0.0;
-
-
+			
+				
 				//printf("x =%d \t\t y=%d et_L_E=%f \t q_L_E.x=%f  \t q_L_E.y=%f  \n", agent->x, agent->y, et_L_E, q_L_E.x, q_L_E.y);
 
 				//printf("x =%d \t\t y=%d h_R_E=%f \t q_R_E.x=%f  \t q_R_E.y=%f  \n", agent->x, agent->y, h_R_E, q_R_E.x, q_R_E.y);
-
+				
 				//Wetting and drying "depth-positivity-preserving" reconstructions
-				WD(h_L, h_R, et_L, et_R, q_L.x, q_R.x, q_L.y, q_R.y, EAST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+				WD(h_L_E, h_R_E, et_L_E, et_R_E, qx_L_E, qx_R_E, qy_L_E, qy_R_E, EAST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
 				// Flux across the cell(ic):
 				FPlus = hll_x(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-				zbF_E = z_F;
-				hf_E = h_F_L;
-				qxf_E = qx_F_L;
-				qyf_E = qy_F_L;
+				 zbF_E = z_F;
+				 hf_E = h_F_L;
+				 qxf_E = qx_F_L;
+				 qyf_E = qy_F_L;
 
 			}
 
 			else
-			//if (msg->x - 1 == agent->x //Previous
-			if (msg->x + 1 == agent->x
+			if (msg->x-1 == agent->x 
 				&& agent->y == msg->y)
 			{
 				// Local WEST, Neighbour EAST
 				// West PART (Minus x direction)
-				double& h_L = msg->hFace_E;
-				double& et_L = msg->etFace_E;
-				double2 q_L = make_double2(msg->qFace_X_E, msg->qFace_Y_E);
+
+				double h_R_W,  h_L_W,  et_R_W, et_L_W;
+				double qx_R_W, qx_L_W, qy_R_W, qy_L_W;
+
+				h_R_W  = agent->hFace_W ;
+				et_R_W = agent->etFace_W;
+				qx_R_W = agent->qxFace_W;
+				qy_R_W = agent->qyFace_W;
+
+				if (agent->x == 1)
+				{
+					h_L_W  = h_R_W;
+					et_L_W = et_R_W;
+					qx_L_W = -qx_R_W;
+					qy_L_W = qy_R_W;
+
+				}
+				else
+				{
+					h_L_W  = msg->hFace_E;
+					et_L_W = msg->etFace_E;
+					qx_L_W = msg->qFace_X_E;
+					qy_L_W = msg->qFace_Y_E;
+				}
 
 
-				double h_R = agent->hFace_W;
-				double et_R = agent->etFace_W;
-				double2 q_R = make_double2(agent->qxFace_W, agent->qyFace_W);
+				//double& h_L  = msg->hFace_E;
+				//double& et_L = msg->etFace_E;
+				//double2 q_L  = make_double2(msg->qFace_X_E, msg->qFace_Y_E);
+
+
+				//double h_R  = agent->hFace_W;
+				//double et_R = agent->etFace_W;
+				//double2 q_R = make_double2(agent->qxFace_W, agent->qyFace_W);
 
 				double z_F = 0.0;
 				double h_F_L = 0.0;
@@ -1095,32 +1164,55 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 				//printf("x =%d \t\t y=%d h_R_E=%f \t q_R_E.x=%f  \t q_R_E.y=%f  \n", agent->x, agent->y, h_L_W, q_L_W.x, q_L_W.y);
 
 				//* Wetting and drying "depth-positivity-preserving" reconstructions
-				WD(h_L, h_R, et_L, et_R, q_L.x, q_R.x, q_L.y, q_R.y, WEST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+				WD(h_L_W, h_R_W, et_L_W, et_R_W, qx_L_W, qx_R_W, qy_L_W, qy_R_W, WEST, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
 				// Flux across the cell(ic):
 				FMinus = hll_x(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-				zbF_W = z_F;
-				hf_W = h_F_R;
-				qxf_W = qx_F_R;
-				qyf_W = qy_F_R;
+				 zbF_W = z_F;
+				 hf_W = h_F_R;
+				 qxf_W = qx_F_R;
+				 qyf_W = qy_F_R;
 
 			}
 			else
 			if (msg->x == agent->x
-				&& agent->y == msg->y - 1) //(Previously)
-				//&& agent->y == msg->y + 1)
+				&& agent->y == msg->y-1 )
 			{
 				//Local NORTH, Neighbour SOUTH
 				// North Part (Plus Y direction)
-				double& h_R = msg->hFace_S;
-				double& et_R = msg->etFace_S;
-				double2 q_R = make_double2(msg->qFace_X_S, msg->qFace_Y_S);
+				double h_R_N, h_L_N, et_R_N, et_L_N;
+				double qx_R_N, qx_L_N, qy_R_N, qy_L_N;
+
+				h_L_N  = agent->hFace_N;
+				et_L_N = agent->etFace_N;
+				qx_L_N = agent->qxFace_N;
+				qy_L_N = agent->qyFace_N;
+
+				if (agent->y == 64)
+				{
+					h_R_N = h_L_N;
+					et_R_N = et_L_N;
+					qx_R_N = qx_L_N;
+					qy_R_N = -qy_L_N;
+
+				}
+				else
+				{
+					h_R_N = msg->hFace_S;
+					et_R_N = msg->etFace_S;
+					qx_R_N = msg->qFace_X_S;
+					qy_R_N = msg->qFace_Y_S;
+				}
+
+				//double& h_R  = msg->hFace_S;
+				//double& et_R = msg->etFace_S;
+				//double2 q_R  = make_double2(msg->qFace_X_S, msg->qFace_Y_S);
 
 
-				double h_L = agent->hFace_N;
-				double et_L = agent->etFace_N;
-				double2 q_L = make_double2(agent->qxFace_N, agent->qyFace_N);
+				//double h_L  = agent->hFace_N;
+				//double et_L = agent->etFace_N;
+				//double2 q_L = make_double2(agent->qxFace_N, agent->qyFace_N);
 
 				double z_F = 0.0;
 				double h_F_L = 0.0;
@@ -1135,32 +1227,57 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 				//printf("x =%d \t\t y=%d h_R_N=%f \t q_R_N.x=%f  \t q_R_N.y=%f  \n", agent->x, agent->y, h_R_N, q_R_N.x, q_R_N.y);
 
 				//* Wetting and drying "depth-positivity-preserving" reconstructions
-				WD(h_L, h_R, et_L, et_R, q_L.x, q_R.x, q_L.y, q_R.y, NORTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+				WD(h_L_N, h_R_N, et_L_N, et_R_N, qx_L_N, qx_R_N, qy_L_N, qy_R_N, NORTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
 				// Flux across the cell(ic):
 				GPlus = hll_y(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-				zbF_N = z_F;
-				hf_N = h_F_L;
-				qxf_N = qx_F_L;
-				qyf_N = qy_F_L;
+				 zbF_N = z_F;
+				 hf_N = h_F_L;
+				 qxf_N = qx_F_L;
+				 qyf_N = qy_F_L;
 
 
 			}
 			else
 			if (msg->x == agent->x
-				&& agent->y == msg->y + 1) // previously
-				//&& agent->y == msg->y - 1)
+				&& agent->y == msg->y+1 )
 			{
 				//Local SOUTH, Neighbour NORTH
 				// South part (Minus y direction)
-				double& h_L = msg->hFace_N;
-				double& et_L = msg->etFace_N;
-				double2 q_L = make_double2(msg->qFace_X_N, msg->qFace_Y_N);
 
-				double h_R = agent->hFace_S;
-				double et_R = agent->etFace_S;
-				double2 q_R = make_double2(agent->qxFace_S, agent->qyFace_S);
+				double h_R_S, h_L_S, et_R_S, et_L_S;
+				double qx_R_S, qx_L_S, qy_R_S, qy_L_S;
+
+				h_R_S  = agent->hFace_S;
+				et_R_S = agent->etFace_S;
+				qx_R_S = agent->qxFace_S;
+				qy_R_S = agent->qyFace_S;
+
+				if (agent->y == 1)
+				{
+					h_L_S = h_R_S;
+					et_L_S = et_R_S;
+					qx_L_S = qx_R_S;
+					qy_L_S = -qy_R_S;
+
+				}
+				else
+				{
+					h_L_S  = msg->hFace_N;
+					et_L_S = msg->etFace_N;
+					qx_L_S = msg->qFace_X_N;
+					qy_L_S = msg->qFace_Y_N;
+				}
+
+
+				//double& h_L  = msg->hFace_N;
+				//double& et_L = msg->etFace_N;
+				//double2 q_L  = make_double2(msg->qFace_X_N, msg->qFace_Y_N);
+
+				//double h_R  = agent->hFace_S;
+				//double et_R = agent->etFace_S;
+				//double2 q_R = make_double2(agent->qxFace_S, agent->qyFace_S);
 
 				double z_F = 0.0;
 				double h_F_L = 0.0;
@@ -1175,15 +1292,15 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 				//printf("x =%d \t\t y=%d h_L_S=%f \t q_L_S.x=%f  \t q_L_S.y=%f  \n", agent->x, agent->y, h_L_S, q_L_S.x, q_L_S.y);
 
 				//* Wetting and drying "depth-positivity-preserving" reconstructions
-				WD(h_L, h_R, et_L, et_R, q_L.x, q_R.x, q_L.y, q_R.y, SOUTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
+				WD(h_L_S, h_R_S, et_L_S, et_R_S, qx_L_S, qx_R_S, qy_L_S, qy_R_S, SOUTH, z_F, h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
 				// Flux across the cell(ic):
 				GMinus = hll_y(h_F_L, h_F_R, qx_F_L, qx_F_R, qy_F_L, qy_F_R);
 
-				zbF_S = z_F;
-				hf_S = h_F_R;
-				qxf_S = qx_F_R;
-				qyf_S = qy_F_R;
+				 zbF_S = z_F;
+				 hf_S = h_F_R;
+				 qxf_S = qx_F_R;
+				 qyf_S = qy_F_R;
 
 
 			}
@@ -1207,9 +1324,9 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	double SS_3 = (-GRAVITY * h0y_bar * 2.0 * z1y_bar) / DYL;
 
 
-	agent->h = agent->h - (TIMESTEP / DXL) * (FPlus.x - FMinus.x) - (TIMESTEP / DYL) * (GPlus.x - GMinus.x) + TIMESTEP * SS_1;
-	agent->qx = agent->qx - (TIMESTEP / DXL) * (FPlus.y - FMinus.y) - (TIMESTEP / DYL) * (GPlus.y - GMinus.y) + TIMESTEP * SS_2;
-	agent->qy = agent->qy - (TIMESTEP / DXL) * (FPlus.z - FMinus.z) - (TIMESTEP / DYL) * (GPlus.z - GMinus.z) + TIMESTEP * SS_3;
+	agent->h  = agent->h  -(TIMESTEP / DXL) * (FPlus.x - FMinus.x) - (TIMESTEP / DYL) * (GPlus.x - GMinus.x) + TIMESTEP * SS_1;
+	agent->qx = agent->qx -(TIMESTEP / DXL) * (FPlus.y - FMinus.y) - (TIMESTEP / DYL) * (GPlus.y - GMinus.y) + TIMESTEP * SS_2;
+	agent->qy = agent->qy -(TIMESTEP / DXL) * (FPlus.z - FMinus.z) - (TIMESTEP / DYL) * (GPlus.z - GMinus.z) + TIMESTEP * SS_3;
 
 
 
@@ -1229,7 +1346,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	//	agent->qx = agent->qx;
 	//	agent->qy = agent->qy;
 	//}
-
+	
 	//////	
 	//////	//this needs to be set high, so it is ignored in the timestep reduction stage
 	//////	agent->timeStep = BIG_NUMBER;

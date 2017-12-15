@@ -29,10 +29,14 @@ int main()
 	int          inDomain = 1;
 
 	// Specifying the size of domain   
-	int xmin = -20;//0;//0;
-	int xmax = 20;//75;//75;
-	int ymin = -20;//0;//0;
-	int ymax = 20;//30;//30;
+//	int xmin = -20;//0;//0;
+//	int xmax = 20;//75;//75;
+//	int ymin = -20;//0;//0;
+//	int ymax = 20;//30;//30;
+	int xmin = 0;//0;
+	int xmax = 75;//75;
+	int ymin = 0;//0;
+	int ymax = 30;//30;
 
 	//********************** This is to specify the number of agents, which is supposed to be square ********************* 
 	//int nx = 128;//256;
@@ -72,8 +76,8 @@ int main()
 
 
 	// initial flow rate
-	double qx_initial = 0.00;
-	double qy_initial = 0.00;
+	double qx_initial = 0.0;
+	double qy_initial = 0.0;
 
 	// Mesh-grid propertise
 	lx = xmax - xmin;
@@ -204,38 +208,38 @@ int main()
 double initial_flow(double x_int, double y_int, double z0_int)
 {
 	 //case 1 - 1D-Fully wet with no topography
-//	double etta = 1.875;//1.875;//1.875;
-//	double h;
+	double etta = 1.875;//1.875;//1.875;
+	double h;
 
-//	if (x_int < 16) 
-//	{
-//	if (y_int < 16) 
-//	{
-//		
-////		h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
-//			h = etta - z0_int;//std::max(0.0, etta - z0_int); 
-//	}
-//	else
-//	{
-////			h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
-//		h = 0.0;
-//	}
+	if (x_int < 16) 
+	{
+////	if (y_int < 16) 
+////	{
+		
+//		h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
+			h = etta - z0_int;//std::max(0.0, etta - z0_int); 
+	}
+	else
+	{
+//		h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
+		h = 0.5;
+	}
 //	
 	// case 2 - Radial Dam break , wet
-	double etta = 2.5;//1.875;
-    double x_o = 0;
-    double y_o = 0;
-    double radius = 2.5;
-    double h;
-       
-       if (sqrt(pow((x_int - x_o),2) + pow((y_int - y_o),2)) <= radius)
-       {
-       	h = etta - z0_int;
-	   }
-	   else
-	   {
-	   	h = 0;
-	   }
+//	double etta = 2.5;//1.875;
+//    double x_o = 0;
+//    double y_o = 0;
+//    double radius = 2.5;
+//    double h;
+//       
+//       if (sqrt(pow((x_int - x_o),2) + pow((y_int - y_o),2)) <= radius)
+//       {
+//       	h = etta - z0_int;
+//	   }
+//	   else
+//	   {
+//	   	h = 0;
+//	   }
 	   
 
 	   

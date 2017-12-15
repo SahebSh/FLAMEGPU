@@ -64,3 +64,7 @@ Done by the date:
 - CUDA 8.0 replaced by CUDA 7.0 (personal computer issue)
 - Code has been refined in some terms. 
 - This update is a backup, as it has been validated in some test cases and the results are satisfying enough. 
+
+----------------- MS15Dec2017 ------------------ 
+- Backup after solving QX issue. The model works completely perfect.
+ 
