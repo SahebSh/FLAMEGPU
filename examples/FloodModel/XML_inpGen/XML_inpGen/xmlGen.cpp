@@ -12,7 +12,7 @@
 double bed_data(double x_int, double y_int);
 double initial_flow(double x_int, double y_int, double z0_int);
 
-#define SIZE 64 
+#define SIZE 128 
 
 int main()
 {
@@ -28,15 +28,19 @@ int main()
 	//double       timestep = 0.5; // assigned Temporary 
 	int          inDomain = 1;
 
-	// Specifying the size of domain   
-//	int xmin = -20;//0;//0;
-//	int xmax = 20;//75;//75;
-//	int ymin = -20;//0;//0;
-//	int ymax = 20;//30;//30;
-	int xmin = 0;//0;
-	int xmax = 75;//75;
-	int ymin = 0;//0;
-	int ymax = 30;//30;
+	// Specifying the size of domain  
+	 
+	// Case 1: Radial
+//	int xmin = 0;// Radial = 0
+//	int xmax = 40;//;Radial = 40
+//	int ymin = 0;//Radial = 0
+//	int ymax = 40;//Radial = 40
+	
+	// Case 2: Three Humps
+	int xmin = 0;// Radial = 0
+	int xmax = 75;//;Radial = 40
+	int ymin = 0;//Radial = 0
+	int ymax = 30;//Radial = 40
 
 	//********************** This is to specify the number of agents, which is supposed to be square ********************* 
 	//int nx = 128;//256;
@@ -103,15 +107,16 @@ int main()
 	// NOTE: array index starts from zero. For more info on why, read this --> http://developeronline.blogspot.co.uk/2008/04/why-array-index-should-start-from-0.html
 	for (i = 0; i < SIZE + 1; i++){
 		for (j = 0; j < SIZE + 1; j++){
-
+		
 
 			x_int[i] = xmin + i  * dx;
 			y_int[j] = ymin + j  * dy;
 
-//			z0_int[i][j] = bed_data((double)x_int[i], (double)y_int[j]);
-//			h_int[i][j]  = initial_flow((double)x_int[i], (double)y_int[j], (double)z0_int[i][j]);
-//			qx_int[i][j] = qx_initial; // Temporary assigned value
-//			qy_int[i][j] = qy_initial; // Temporary assigned value (However it should be 0 )
+			z0_int[i][j] = bed_data((double)x_int[i], (double)y_int[j]);
+			h_int[i][j]  = initial_flow((double)x_int[i], (double)y_int[j], (double)z0_int[i][j]);
+			
+			qx_int[i][j] = 0;//qx_initial; // Temporary assigned value
+			qy_int[i][j] = 0;//qy_initial; // Temporary assigned value (However it should be 0 )
 		}
 	}
 
@@ -127,23 +132,25 @@ int main()
 	//		qx[i][j] = 0.25*(qx_int[i][j + 1] + qx_int[i][j] + qx_int[i + 1][j] + qx_int[i + 1][j + 1]);
 	//		qy[i][j] = 0.25*(qy_int[i][j + 1] + qy_int[i][j] + qy_int[i + 1][j] + qy_int[i + 1][j + 1]);
 			
-			for ( i=1 ; i < SIZE + 1 ; i++)	// changed by MS17Nov2017  			
-				for (j=1 ; j< SIZE + 1; j++)
+//			for ( i=1 ; i < SIZE + 1 ; i++)	// changed by MS17Nov2017  			
+//				for (j=1 ; j< SIZE + 1; j++)
+			for ( i=0 ; i < SIZE  ; i++)	// changed by MS17Nov2017  			
+				for (j=0 ; j< SIZE ; j++)
+				
 					{
 						{
-							x[i]  = 0.5 * ( x_int[i] +  x_int[i-1]); //
-							y[j]  = 0.5 * ( y_int[j] +  y_int[j-1]);
+							x[i]  = 0.5 * ( x_int[i] +  x_int[i+1]); //
+							y[j]  = 0.5 * ( y_int[j] +  y_int[j+1]);
 							
-										z0[i][j] = bed_data((double)x[i], (double)y[j]);
-										h[i][j]  = initial_flow((double)x[i], (double)y[j], (double)z0[i][j]);
-										qx[i][j] = qx_initial;
-										qy[i][j] = qy_initial;
-											
-			                    
-//			                z0[i][j] =  (z0_int[i][j] + z0_int[i-1][j] + z0_int[i][j-1] + z0_int[i-1][j-1])/4;
-//			                h[i][j]  =  ( h_int[i][j] +  h_int[i-1][j] +  h_int[i][j-1] +  h_int[i-1][j-1])/4;
-//			                qx[i][j] =  (qx_int[i][j] + qx_int[i-1][j] + qx_int[i][j-1] + qx_int[i-1][j-1])/4;
-//			                qy[i][j] =  (qy_int[i][j] + qy_int[i-1][j] + qy_int[i][j-1] + qy_int[i-1][j-1])/4;
+//										z0[i][j] = bed_data((double)x[i], (double)y[j]);
+//										h[i][j]  = initial_flow((double)x[i], (double)y[j], (double)z0[i][j]);
+//										qx[i][j] = qx_initial;
+//										qy[i][j] = qy_initial;
+    
+			                z0[i][j] =  (z0_int[i][j] + z0_int[i+1][j] + z0_int[i][j+1] + z0_int[i+1][j+1])/4;
+			                h[i][j]  =  ( h_int[i][j] +  h_int[i+1][j] +  h_int[i][j+1] +  h_int[i+1][j+1])/4;
+			                qx[i][j] =  (qx_int[i][j] + qx_int[i+1][j] + qx_int[i][j+1] + qx_int[i+1][j+1])/4;
+			                qy[i][j] =  (qy_int[i][j] + qy_int[i+1][j] + qy_int[i][j+1] + qy_int[i+1][j+1])/4;
 
 							fprintf(fp2,"%d\t\t %d\t\t %f \t\t %f \t\t %f \t\t %f \t\t\n", i,j,z0[i][j],h[i][j],qx[i][j],qy[i][j]);
 
@@ -170,7 +177,7 @@ int main()
 			fprintf(fp, "\t<inDomain>%d</inDomain>\n", inDomain);
 			//                    fprintf(fp, "\t<x>%f</x>\n", x[i]);
 			//                    fprintf(fp, "\t<y>%f</y>\n", y[j]);
-			fprintf(fp, "\t<x>%d</x>\n", i);
+			fprintf(fp, "\t<x>%d</x>\n", i); // +1 can be added to to output 128 * 128, not 127 * 127 / since FLAME-GPU can read x = 0 that is completely alright
 			fprintf(fp, "\t<y>%d</y>\n", j);
 			fprintf(fp, "\t<z0>%f</z0>\n", z0[i][j]);
 			fprintf(fp, "\t<h>%f</h>\n", h[i][j]);
@@ -207,29 +214,30 @@ int main()
 
 double initial_flow(double x_int, double y_int, double z0_int)
 {
-	 //case 1 - 1D-Fully wet with no topography
-	double etta = 1.875;//1.875;//1.875;
-	double h;
+	 //1D-Fully wet with no topography
+//	double etta = 1.0;//1.875;//1.875; // 
+//	double h;
 
-	if (x_int < 16) 
-	{
-////	if (y_int < 16) 
-////	{
-		
-//		h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
-			h = etta - z0_int;//std::max(0.0, etta - z0_int); 
-	}
-	else
-	{
-//		h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
-		h = 0.5;
-	}
+//	if (x_int < 25) 
+//	{
+//////	if (y_int < 16) 
+//////	{
+//		
+////		h = max2(0.0, etta - z0_int); <-- NOTE: you do not need max2. You can use std::max from algorithm library
+//			h = etta - z0_int;//std::max(0.0, etta - z0_int); 
+//	}
+//	else
+//	{
+////		h = 0.5;//etta - z0_int; //0.0*max2(0.0, etta - z0_int); <-- NOTE: this is always zero? // MS " Different in test cases "
+//		h = 0.1;
+//	}
 //	
-	// case 2 - Radial Dam break , wet
-//	double etta = 2.5;//1.875;
-//    double x_o = 0;
-//    double y_o = 0;
-//    double radius = 2.5;
+	// case 1 - Radial Dam break , wet
+//	double etta = 2.5;
+//    double x_o = 20;
+//    double y_o = 20;
+//    
+//	double radius = 2.5;
 //    double h;
 //       
 //       if (sqrt(pow((x_int - x_o),2) + pow((y_int - y_o),2)) <= radius)
@@ -238,11 +246,22 @@ double initial_flow(double x_int, double y_int, double z0_int)
 //	   }
 //	   else
 //	   {
-//	   	h = 0;
+//	   	h = .5;
 //	   }
 	   
-
+	   // Case 2: Three Humps
+	   double etta = 1.875;
+	   double h;
 	   
+	   if (x_int <= 16)
+	   {
+	   	h = etta - z0_int;
+	   }
+	   else
+	   {
+	   	h = 0.0;
+	   }
+   
 	return h;
 }
 //    
@@ -291,8 +310,7 @@ double bed_data(double x_int, double y_int)
 	double zb3 = 3 * (rm3 - r3) / 10.0;
 	double zb4 = 0.0; /*This is the minimum height of the topography*/
 		
-	// Test case 1,2  z = 0
-	zz = 0.0 * std::max( std::max((double)zb1, (double)zb2), std::max((double)zb3, (double)zb4) );
+	zz = 1.0 * std::max( std::max((double)zb1, (double)zb2), std::max((double)zb3, (double)zb4) );
 
 	return zz;
 }

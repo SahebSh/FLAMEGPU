@@ -23,16 +23,20 @@
 #define epsilon 1.0e-3
 #define emsmall 1.0e-12 //0.000000000001 //1.0e-12
 #define GRAVITY 9.80665 
-#define GLOBAL_MANNING 0.018500
+#define GLOBAL_MANNING 0.018000 // has been set to the three humps test case, originally 0.0185
 #define CFL 0.5
 #define TOL_H 10.0e-4
-#define TIMESTEP 0.017
-//#define DXL 1.171875
-//#define DYL 0.468750
-#define DXL 1.171875 // Domain 0:75 and N=64 1D dambreak test cases
-#define DYL 0.46875 // Domain 0:30 and N=64
-//#define DXL 0.625 // Domain -20:20 and N=64 Radial dambreak test cases
-//#define DYL 0.625 // Domain -20:20 and N=64
+//#define TIMESTEP 0.01 //Radial Dam-break test 
+#define TIMESTEP 0.03 //Three Humps Dam Break
+
+//Case 1: Radial Dam Break
+//#define DXL 0.3125  // Based on L=40 and N=128 Radial Test-case
+//#define DYL 0.3125  // Based on L=40 and N=128 Radial Test-case
+
+//Case 1: Three Humps Dam Break
+#define DXL 0.5859375 // Domain [0 75] and N=128 1D dambreak test cases
+#define DYL 0.234375 // Domain [0 30] and N=128
+
 
 
 #define BIG_NUMBER 800000             // Used in WetDryMessage to skip extra calculations MS05Sep2017
@@ -189,7 +193,6 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, double dt)
 {
 
-
 	if (GLOBAL_MANNING > 0.0)
 	{
 		AgentFlowData FlowData = GetFlowDataFromAgent(agent);
@@ -262,6 +265,8 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 
 
 		maxHeight = agent->minh_loc;
+
+
 		if (maxHeight > TOL_H) // if the Height of water is not less than TOL_H => the friction is needed to be taken into account MS05Sep2017
 		{
 			Friction_Implicit(agent, TIMESTEP); //
@@ -269,7 +274,7 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 		else
 		{
 
-			//need to go high, so that it won't affect min calculation when it is tested again . Needed to be tested MS05Sep2017 which is now temporary. needs to be corrected somehow
+		//	//need to go high, so that it won't affect min calculation when it is tested again . Needed to be tested MS05Sep2017 which is now temporary. needs to be corrected somehow
 			agent->minh_loc = BIG_NUMBER;
 		}
 
@@ -863,7 +868,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	double h_R = h_L;
 	double et_R = et_L;
 
-	double qx_R = -qx_L;
+	double qx_R = -qx_L;//
 	double qy_R = qy_L;
 
 
@@ -916,7 +921,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	h_L = h_R;
 	et_L = et_R;
 
-	qx_L = -qx_R;
+	qx_L = -qx_R;//-
 	qy_L = qy_R;
 
 
@@ -960,7 +965,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	et_R = et_L;
 
 	qx_R = qx_L;
-	qy_R = -qy_L; // 
+	qy_R = -qy_L; //-
 
 
 	//Wetting and drying "depth-positivity-preserving" reconstructions
@@ -1003,7 +1008,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	et_L = et_R;
 
 	qx_L = qx_R;
-	qy_L = -qy_R;
+	qy_L = -qy_R; //-
 	//q_L  = q_R; // -q_L changed to q_L MS15Nov2017
 
 

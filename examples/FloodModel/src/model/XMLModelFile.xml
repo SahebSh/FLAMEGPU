@@ -193,7 +193,7 @@
                 <initialState>Default</initialState>
             </states>
             <gpu:type>discrete</gpu:type>
-            <gpu:bufferSize>4096</gpu:bufferSize>
+            <gpu:bufferSize>16384</gpu:bufferSize>
         </gpu:xagent>
     </xagents>
   
@@ -221,7 +221,7 @@
         <gpu:partitioningDiscrete>
           <gpu:radius>1</gpu:radius>
         </gpu:partitioningDiscrete>
-        <gpu:bufferSize>4096</gpu:bufferSize>
+        <gpu:bufferSize>16384</gpu:bufferSize>
       </gpu:message>
 
 
@@ -329,7 +329,7 @@
             <gpu:partitioningDiscrete>
                 <gpu:radius>1</gpu:radius>
             </gpu:partitioningDiscrete>
-            <gpu:bufferSize>4096</gpu:bufferSize>
+            <gpu:bufferSize>16384</gpu:bufferSize>
         </gpu:message>
         
        

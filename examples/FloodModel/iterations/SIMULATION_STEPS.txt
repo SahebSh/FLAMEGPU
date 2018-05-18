@@ -12,8 +12,31 @@ then, 0.xml file is generated.
 NOTICE : iteration 0 is taken as the first iteration. so, if anyone needs 276th iteration data, they have to look for the data
 in 275th iteration. 
 
+3- Check FloodModel Property Pages/Configuration Properties/Debugging/ set Command Argument to: .\iterations\0.xml XXX ; XXX is the number of iterations
+
 3- Function.c needs to be checked. Due to different test cases and different dimensions of the domain, 
-DXL and DYL needs to be assigned carefully with respect to the initial condition. TIMESTEP is assigned as a constant so far.
+DXL and DYL needs to be assigned carefully with respect to the initial condition. 
+TIMESTEP is assigned as a constant so far.
+
+1)Set DXL = Lx/N  L:length of domain    N: number of computational cells (FOR NOW: these variables are manually imported)
+2)Set DYL = Ly/N  L:length of domain    N: number of computational cells 
+3)Set TIMESTEP 
 (to date ; )
 
- 
+4- IMP: check the buffersize to be set to the number of agents in the domain 
+
+5- After running. Run Gitbash. and add the dirctory of python36:
+- Changing Python directory to: 
+PATH=$PATH:/c/Python36/
+
+Then go to the .../iterations/ and use this command to convert the files: 
+python3 xml2csv.py -i input.xml -o output.txt(/csv)
+
+NOTE: Each output can be extracted with the aim of specific converter
+
+///////
+Cygdrive directory change to: (For initial condition generating)
+cd C:/Users/mohammad/Desktop/GitHub/FLAMEGPU/examples/FloodModel/XML_inpGen/XML_inpGen 
+
+Bash directory change: 
+cd C:/Users/mohammad/Desktop/GitHub/FLAMEGPU/examples/FloodModel/iterations
