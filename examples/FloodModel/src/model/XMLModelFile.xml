@@ -3,25 +3,57 @@
         xmlns="http://www.dcs.shef.ac.uk/~paul/XMML">
     <name>flood</name>
     <gpu:environment>
-        <!--<gpu:constants>
-            <gpu:variable>
-                <type>double</type>
-                <name>TIMESTEP</name>
-            </gpu:variable>
-            <gpu:variable>
-                <type>double</type>
-                <name>DXL</name>
-            </gpu:variable>
-            <gpu:variable>
-                <type>double</type>
-                <name>DYL</name>
-            </gpu:variable>
-        </gpu:constants>-->
+      
+        <gpu:constants>
+          <gpu:variable>
+            <type>double</type>
+            <name>xmin</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>xmax</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>ymin</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>ymax</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>dt</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>DXL</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>DYL</name>
+          </gpu:variable>
+        </gpu:constants>
+      
         <gpu:functionFiles>
             <file>functions.c</file>
         </gpu:functionFiles>
-    </gpu:environment>
+      
+          <gpu:initFunctions>
+    <gpu:initFunction>
+       <gpu:name>initConstants</gpu:name>
+   </gpu:initFunction>
+   </gpu:initFunctions>
+        
+    <gpu:stepFunctions>
+      <gpu:stepFunction>
+        <gpu:name>DELTA_T_func</gpu:name>
+      </gpu:stepFunction>
+    </gpu:stepFunctions>
+    
+  </gpu:environment>
     <xagents>
+      
         <gpu:xagent>
             <name>FloodCell</name>
             <memory>
@@ -193,7 +225,7 @@
                 <initialState>Default</initialState>
             </states>
             <gpu:type>discrete</gpu:type>
-            <gpu:bufferSize>16384</gpu:bufferSize>
+            <gpu:bufferSize>4096</gpu:bufferSize>
         </gpu:xagent>
     </xagents>
   
@@ -221,7 +253,7 @@
         <gpu:partitioningDiscrete>
           <gpu:radius>1</gpu:radius>
         </gpu:partitioningDiscrete>
-        <gpu:bufferSize>16384</gpu:bufferSize>
+        <gpu:bufferSize>4096</gpu:bufferSize>
       </gpu:message>
 
 
@@ -329,7 +361,7 @@
             <gpu:partitioningDiscrete>
                 <gpu:radius>1</gpu:radius>
             </gpu:partitioningDiscrete>
-            <gpu:bufferSize>16384</gpu:bufferSize>
+            <gpu:bufferSize>4096</gpu:bufferSize>
         </gpu:message>
         
        

@@ -18,6 +18,14 @@
 
 #define SIMULATION_DELAY 20
 
+// flood model specific ranges
+#define Z0_MIN 0.0f
+#define Z0_MAX 4.0f
+
+#define H_MIN 0.0f
+#define H_MAX 3.0f
+
+
 // constants
 const unsigned int WINDOW_WIDTH = 512;
 const unsigned int WINDOW_HEIGHT = 512;
@@ -34,7 +42,9 @@ const double SPHERE_RADIUS = 1;
 //Viewing Distance
 const double VIEW_DISTANCE = 256;
 
+
 //light position
-GLfloat LIGHT_POSITION[] = {10.0f, 10.0f, 10.0f, 1.0f};
+//GLfloat LIGHT_POSITION[] = { 0.0, 0.0, 1000.0f, 0.0f };
+GLfloat LIGHT_POSITION[] = {0.0, 0.0, 0.0f, 0.0f};
 
 #endif __VISUALISATION_H

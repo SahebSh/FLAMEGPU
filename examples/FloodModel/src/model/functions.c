@@ -1,14 +1,13 @@
-
-#ifndef _FUNCTIONS_H_
-#define _FUNCTIONS_H_
+#ifndef _FLAMEGPU_FUNCTIONS
+#define _FLAMEGPU_FUNCTIONS
 
 #include "header.h"
 #include "cutil_math.h"
 
-
-
-#define PI 3.1415f
-#define RADIANS(x) (PI / 180.0f) * x
+// This is to output the computational time for each message function within each iteration (added by MS22May2018) 
+//#define INSTRUMENT_ITERATIONS 1
+//#define INSTRUMENT_AGENT_FUNCTIONS 1
+//#define OUTPUT_POPULATION_PER_ITERATION 1
 
 //
 #if _DEBUG
@@ -19,37 +18,108 @@
 #define DEBUG_LOG_POSITION( name, position )
 #endif
 
-//#define SIZE 64 // added by MS20NOV2017
+// global constant of the flood model
 #define epsilon 1.0e-3
-#define emsmall 1.0e-12 //0.000000000001 //1.0e-12
+#define emsmall 1.0e-12 
 #define GRAVITY 9.80665 
 #define GLOBAL_MANNING 0.018000 // has been set to the three humps test case, originally 0.0185
 #define CFL 0.5
 #define TOL_H 10.0e-4
-//#define TIMESTEP 0.01 //Radial Dam-break test 
-#define TIMESTEP 0.03 //Three Humps Dam Break
-
-//Case 1: Radial Dam Break
-//#define DXL 0.3125  // Based on L=40 and N=128 Radial Test-case
-//#define DYL 0.3125  // Based on L=40 and N=128 Radial Test-case
-
-//Case 1: Three Humps Dam Break
-#define DXL 0.5859375 // Domain [0 75] and N=128 1D dambreak test cases
-#define DYL 0.234375 // Domain [0 30] and N=128
-
-
-
 #define BIG_NUMBER 800000             // Used in WetDryMessage to skip extra calculations MS05Sep2017
+
+
+
+#define PI 3.1415f
+#define RADIANS(x) (PI / 180.0f) * x
+
+
+__FLAME_GPU_INIT_FUNC__ void initConstants()
+{
+	// This function assign initial values to DXL, DYL, and dt
+
+	double dt_init;
+
+	// loading constant variables in host function
+	int x_min, x_max, y_min, y_max;
+	x_min = *get_xmin();
+	x_max = *get_xmax();
+	y_min = *get_ymin();
+	y_max = *get_ymax();
+
+	// the size of the computaional cell (flood agents)
+	// sqrt(xmachine_memory_FloodCell_MAX) is the number of agents in each direction. 
+	double dxl = (x_max - x_min) / sqrt(xmachine_memory_FloodCell_MAX);
+	double dyl = (y_max - y_min) / sqrt(xmachine_memory_FloodCell_MAX);
+
+
+	//// for each flood agent in the state default
+	for (int index = 0; index < get_agent_FloodCell_Default_count(); index++)
+	{
+
+		//Loading data from the agents
+		double hp = get_FloodCell_Default_variable_h(index);
+
+		if (hp > TOL_H)
+		{
+
+			double qx = get_FloodCell_Default_variable_qx(index);
+			double qy = get_FloodCell_Default_variable_qy(index);
+
+			double up = qx / hp;
+			double vp = qy / hp;
+
+			dt_init = fminf(CFL * dxl / (fabs(up) + sqrt(GRAVITY * hp)), CFL * dyl / (fabs(vp) + sqrt(GRAVITY * hp)));
+		}
+
+		//store for timestep calc
+		//dt_init = fminf(dt_init, dt_xy);
+
+	}
+
+	set_dt(&dt_init);
+	set_DXL(&dxl);
+	set_DYL(&dyl);
+
+	//printf("dx = %f and dy = %f \n", dxl,dyl); //prints assigned dx dy
+
+	//printf("dt = %f \n", dt);
+	//printf("xmin = %d xmax = %d ymin = %d ymin = %d\n", x_min,x_max,y_min,y_max);
+
+}
+
+// assigning dt for the next iteration
+__FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
+{
+	// This function takes the minimum dt between all the agents in the domain 
+	// and assign it to be the time-step of the simulation for each iteration
+	// This function is executed after each iteration
+
+	//double minTimeStep = min_FloodCell_Default_timeStep_variable();
+
+
+	double minTimeStep = 0.005; // for static time-stepping and measuring computation time
+
+	set_dt(&minTimeStep);
+
+
+	//printf("dt = %f \n", minTimeStep); //prints assigned dt 
+
+}
 
 
 inline __device__ double3 hll_x(double h_L, double h_R, double qx_L, double qx_R, double qy_L, double qy_R);
 inline __device__ double3 hll_y(double h_L, double h_R, double qx_L, double qx_R, double qy_L, double qy_R);
 
-inline __device__ double3 Flux_F(double hh, double qx, double qy);
-inline __device__ double3 Flux_G(double hh, double qx, double qy);
+//inline __device__ double3 Flux_F(double hh, double qx, double qy);
+//inline __device__ double3 Flux_G(double hh, double qx, double qy);
 
 inline __device__ double3 F_SWE(double hh, double qx, double qy);
 inline __device__ double3 G_SWE(double hh, double qx, double qy);
+
+//inline __device__ double3 timeStep(double hh, double qx, double qy);
+
+// Approximating the minimum dt from all the agents
+//__global__ void timestep(double *timeStep);
 
 
 //inline __device__ double3 Sb(double hx_mod, double hy_mod, double zprime_x, double zprime_y);
@@ -104,8 +174,6 @@ inline __device__ AgentFlowData GetFlowDataFromAgent(xmachine_memory_FloodCell* 
 }
 
 
-
-
 // Boundary condition in ghost cells // 
 inline __device__ void centbound(xmachine_memory_FloodCell* agent, const AgentFlowData& FlowData, AgentFlowData& centBoundData)
 {
@@ -140,10 +208,6 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 
 
 	double2 result;
-
-	//// added to test the case with no friction MS01Dec2017
-	//result.x = qx_loc;
-	//result.y = qy_loc;
 
 	if (h_loc > TOL_H)
 	{
@@ -192,6 +256,7 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 
 inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, double dt)
 {
+	//double dt = agent->timeStep;
 
 	if (GLOBAL_MANNING > 0.0)
 	{
@@ -214,7 +279,7 @@ inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, doubl
 
 __FLAME_GPU_FUNC__ int PrepareWetDry(xmachine_memory_FloodCell* agent, xmachine_message_WetDryMessage_list* WerDryMessage_messages)
 {
-	if (agent->inDomain == 1)
+	if (agent->inDomain)
 	{
 
 		AgentFlowData FlowData = GetFlowDataFromAgent(agent);
@@ -239,7 +304,7 @@ __FLAME_GPU_FUNC__ int PrepareWetDry(xmachine_memory_FloodCell* agent, xmachine_
 __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xmachine_message_WetDryMessage_list* WetDryMessage_messages)
 {
 
-	if (agent->inDomain == 1)
+	if (agent->inDomain)
 	{
 
 		//looking up neighbours values for wet/dry tracking
@@ -250,7 +315,7 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 		// MS COMMENTS : WHICH HEIGH OF NEIGHBOUR IS BEING CHECKED HERE? ONE AGAINST OTHER AGENTS ? POSSIBLE ?
 		while (msg)
 		{
-			if (msg->inDomain == 1)
+			if (msg->inDomain)
 			{
 				agent->minh_loc = min(agent->minh_loc, msg->min_hloc);
 			}
@@ -264,24 +329,55 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 		}
 
 
+
 		maxHeight = agent->minh_loc;
 
 
-		if (maxHeight > TOL_H) // if the Height of water is not less than TOL_H => the friction is needed to be taken into account MS05Sep2017
-		{
-			Friction_Implicit(agent, TIMESTEP); //
-		}
-		else
-		{
+		//if (maxHeight > TOL_H) // if the Height of water is not less than TOL_H => the friction is needed to be taken into account MS05Sep2017
+		//{
+
+		//		// Contribution of friction term
+		//		//Friction_Implicit(agent, TIMESTEP); //
+
+		//	//Friction term has been disabled for radial deam-break
+		//	//	Friction_Implicit(agent,TIMESTEP); //
+
+		//}
+		//else
+		//{
 
 		//	//need to go high, so that it won't affect min calculation when it is tested again . Needed to be tested MS05Sep2017 which is now temporary. needs to be corrected somehow
-			agent->minh_loc = BIG_NUMBER;
-		}
+		agent->minh_loc = BIG_NUMBER;
+
+		// taking agent->timeStep to a non-zero value execuled zero from taking the minimum time-step of all the agents
+		//agent->timeStep = BIG_NUMBER;
+
+		//}
+
+
+		// Approximation of time step at the first iteration
+		// Initialisation of timestep to a non-zero value, so that it can be approximated for the min dt 'MS23May2018'
+		//agent->timeStep = BIG_NUMBER;
+
+		//double hp = agent->h;
+		//double dt = agent->timeStep;
+
+		////printf("dt = %f" , dt);
+
+		//double up = agent->qx / hp;
+		//double vp = agent->qy / hp;
+
+		////store for timestep calc
+		//double xStep = CFL * DXL / (fabs(up) + sqrt(GRAVITY * hp));
+		//double yStep = CFL * DYL / (fabs(vp) + sqrt(GRAVITY * hp));
+
+		//double dt_xy = fminf(xStep, yStep);
+
+		//agent->timeStep = fminf(dt, dt_xy);
 
 	}
 
 	//printf("qx = %f \t qy = %f \n", agent->qx, agent->qy);
-
 
 	return 0;
 }
@@ -321,90 +417,6 @@ __FLAME_GPU_FUNC__ int PrepareSpaceOperator(xmachine_memory_FloodCell* agent, xm
 
 
 	LFVResult faceLFV = LFV(FlowData);
-	////EAST FACE
-	//agent->etFace_E = faceLFV.et_face;
-	//agent->hFace_E  = faceLFV.h_face;
-	//agent->qxFace_E = faceLFV.qFace.x;
-	//agent->qyFace_E = faceLFV.qFace.y;
-
-	////WEST FACE
-	//agent->etFace_W = faceLFV.et_face;
-	//agent->hFace_W  = faceLFV.h_face;
-	//agent->qxFace_W = faceLFV.qFace.x;
-	//agent->qyFace_W = faceLFV.qFace.y;
-
-	////NORTH FACE
-	//agent->etFace_N = faceLFV.et_face;
-	//agent->hFace_N  = faceLFV.h_face;
-	//agent->qxFace_N = faceLFV.qFace.x;
-	//agent->qyFace_N = faceLFV.qFace.y;
-
-	////SOUTH FACE
-	//agent->etFace_S = faceLFV.et_face;
-	//agent->hFace_S  = faceLFV.h_face;
-	//agent->qxFace_S = faceLFV.qFace.x;
-	//agent->qyFace_S = faceLFV.qFace.y;
-	//
-	//if (agent->x == SIZE)
-	//{
-	//	agent->etFace_E = EastBound.et;
-	//	agent->hFace_E = EastBound.h;
-	//	agent->qxFace_E = EastBound.qx;
-	//	agent->qyFace_E = EastBound.qy;
-	//}
-	//else
-	//{
-	//	agent->etFace_E = faceLFV.et_face;
-	//	agent->hFace_E = faceLFV.h_face;
-	//	agent->qxFace_E = faceLFV.qFace.x;
-	//	agent->qyFace_E = faceLFV.qFace.y;
-	//}
-
-	//if (agent->x == 1)
-	//{
-	//	agent->etFace_W = WestBound.et;
-	//	agent->hFace_W = WestBound.h;
-	//	agent->qxFace_W = WestBound.qx;
-	//	agent->qyFace_W = WestBound.qy;
-	//}
-	//else
-	//{
-	//	agent->etFace_W = faceLFV.et_face;
-	//	agent->hFace_W  = faceLFV.h_face;
-	//	agent->qxFace_W = faceLFV.qFace.x;
-	//	agent->qyFace_W = faceLFV.qFace.y;
-	//}
-
-	//if (agent->y == SIZE)
-	//{
-	//	agent->etFace_N = NorthBound.et;
-	//	agent->hFace_N = NorthBound.h;
-	//	agent->qxFace_N = NorthBound.qx;
-	//	agent->qyFace_N = NorthBound.qy;
-	//}
-	//else
-	//{
-	//	agent->etFace_N = faceLFV.et_face;
-	//	agent->hFace_N  = faceLFV.h_face;
-	//	agent->qxFace_N = faceLFV.qFace.x;
-	//	agent->qyFace_N = faceLFV.qFace.y;
-	//}
-
-	//if (agent->y == 1)
-	//{
-	//	agent->etFace_S = SouthBound.et;
-	//	agent->hFace_S  = SouthBound.h;
-	//	agent->qxFace_S = SouthBound.qx;
-	//	agent->qyFace_S = SouthBound.qy;
-	//}
-	//else
-	//{
-	//	agent->etFace_S = faceLFV.et_face;
-	//	agent->hFace_S  = faceLFV.h_face;
-	//	agent->qxFace_S = faceLFV.qFace.x;
-	//	agent->qyFace_S = faceLFV.qFace.y;
-	//}
-
 
 	//EAST FACE
 	agent->etFace_E = faceLFV.et_face;
@@ -431,7 +443,7 @@ __FLAME_GPU_FUNC__ int PrepareSpaceOperator(xmachine_memory_FloodCell* agent, xm
 	agent->qyFace_S = faceLFV.qFace.y;
 
 
-	if (agent->inDomain == 1
+	if (agent->inDomain
 		&& agent->minh_loc > TOL_H)
 	{
 		//broadcast internal LFV values to surrounding cells
@@ -854,8 +866,8 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 	double zbF_E = agent->z0;
 	double hf_E = 0.0;
-	double qxf_E = 0.0;
-	double qyf_E = 0.0;
+	//double qxf_E = 0.0;
+	//double qyf_E = 0.0;
 
 	double h_L = agent->hFace_E;
 	double et_L = agent->etFace_E;
@@ -868,7 +880,12 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	double h_R = h_L;
 	double et_R = et_L;
 
-	double qx_R = -qx_L;//
+	//Case three humps : reflective
+	//double qx_R = -qx_L;//
+	//double qy_R = qy_L;
+
+	//Case Radial dam : imposed
+	double qx_R = qx_L;//
 	double qy_R = qy_L;
 
 
@@ -891,16 +908,16 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	// Local flow data restrictions at the EASTERN face
 	zbF_E = z_F;
 	hf_E = h_F_L;
-	qxf_E = qx_F_L;
-	qyf_E = qy_F_L;
+	//qxf_E = qx_F_L;
+	//qyf_E = qy_F_L;
 
 
 	// Initialising WESTERN face
 
 	double zbF_W = agent->z0;
 	double hf_W = 0.0;
-	double qxf_W = 0.0;
-	double qyf_W = 0.0;
+	//double qxf_W = 0.0;
+	//double qyf_W = 0.0;
 
 	z_F = 0.0;
 	h_F_L = 0.0;
@@ -921,8 +938,13 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	h_L = h_R;
 	et_L = et_R;
 
-	qx_L = -qx_R;//-
+	//Case Radial dam : imposed
+	qx_L = qx_R;//-
 	qy_L = qy_R;
+
+	//Case Three Humps : reflective
+	//qx_L = -qx_R;//-
+	//qy_L = qy_R;
 
 
 	//Wetting and drying "depth-positivity-preserving" reconstructions
@@ -934,16 +956,16 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	// Local flow data restrictions at the EASTERN face
 	zbF_W = z_F;
 	hf_W = h_F_R;
-	qxf_W = qx_F_R;
-	qyf_W = qy_F_R;
+	//qxf_W = qx_F_R;
+	//qyf_W = qy_F_R;
 
 
 	// Initialising NORTHERN face
 
 	double zbF_N = agent->z0;
 	double hf_N = 0.0;
-	double qxf_N = 0.0;
-	double qyf_N = 0.0;
+	//double qxf_N = 0.0;
+	//double qyf_N = 0.0;
 
 	z_F = 0.0;
 	h_F_L = 0.0;
@@ -964,8 +986,14 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	h_R = h_L;
 	et_R = et_L;
 
+
+	//Case Radial dam : imposed
 	qx_R = qx_L;
-	qy_R = -qy_L; //-
+	qy_R = qy_L; //-
+
+	//Case Three Humps : reflective
+	//qx_R = qx_L;
+	//qy_R = -qy_L; //-
 
 
 	//Wetting and drying "depth-positivity-preserving" reconstructions
@@ -977,16 +1005,16 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	// Local flow data restrictions at the EASTERN face
 	zbF_N = z_F;
 	hf_N = h_F_L;
-	qxf_N = qx_F_L;
-	qyf_N = qy_F_L;
+	//qxf_N = qx_F_L;
+	//qyf_N = qy_F_L;
 
 
 	// Initialising SOUTHERN face
 
 	double zbF_S = agent->z0;
 	double hf_S = 0.0;
-	double qxf_S = 0.0;
-	double qyf_S = 0.0;
+	//double qxf_S = 0.0;
+	//double qyf_S = 0.0;
 
 	z_F = 0.0;
 	h_F_L = 0.0;
@@ -1007,9 +1035,14 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	h_L = h_R;
 	et_L = et_R;
 
+	//Case Radial dam : imposed
 	qx_L = qx_R;
-	qy_L = -qy_R; //-
-	//q_L  = q_R; // -q_L changed to q_L MS15Nov2017
+	qy_L = qy_R; //-
+
+	//Case Three Humps : Reflective
+	//qx_L = qx_R;
+	//qy_L = -qy_R; //-
+
 
 
 	//Wetting and drying "depth-positivity-preserving" reconstructions
@@ -1021,8 +1054,8 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	// Local flow data restrictions at the EASTERN face
 	zbF_S = z_F;
 	hf_S = h_F_R;
-	qxf_S = qx_F_R;
-	qyf_S = qy_F_R;
+	//qxf_S = qx_F_R;
+	//qyf_S = qy_F_R;
 
 
 	xmachine_message_SpaceOperatorMessage* msg = get_first_SpaceOperatorMessage_message<DISCRETE_2D>(SpaceOperatorMessage_messages, agent->x, agent->y);
@@ -1030,7 +1063,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	while (msg)
 
 	{
-		if (msg->inDomain == 1)
+		if (msg->inDomain)
 		{
 			//  Local EAST values and Neighbours' WEST Values are NEEDED
 			// EAST PART (PLUS in x direction)
@@ -1068,13 +1101,13 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 				zbF_E = z_F;
 				hf_E = h_F_L;
-				qxf_E = qx_F_L;
-				qyf_E = qy_F_L;
+				//qxf_E = qx_F_L;
+				//qyf_E = qy_F_L;
 
 			}
 
 			else
-			//if (msg->x - 1 == agent->x //Previous
+				//if (msg->x - 1 == agent->x //Previous
 			if (msg->x + 1 == agent->x
 				&& agent->y == msg->y)
 			{
@@ -1107,8 +1140,8 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 				zbF_W = z_F;
 				hf_W = h_F_R;
-				qxf_W = qx_F_R;
-				qyf_W = qy_F_R;
+				//qxf_W = qx_F_R;
+				//qyf_W = qy_F_R;
 
 			}
 			else
@@ -1147,8 +1180,8 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 				zbF_N = z_F;
 				hf_N = h_F_L;
-				qxf_N = qx_F_L;
-				qyf_N = qy_F_L;
+				//qxf_N = qx_F_L;
+				//qyf_N = qy_F_L;
 
 
 			}
@@ -1187,8 +1220,8 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 
 				zbF_S = z_F;
 				hf_S = h_F_R;
-				qxf_S = qx_F_R;
-				qyf_S = qy_F_R;
+				//qxf_S = qx_F_R;
+				//qyf_S = qy_F_R;
 
 
 			}
@@ -1211,47 +1244,38 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	double SS_2 = (-GRAVITY * h0x_bar * 2.0 * z1x_bar) / DXL;
 	double SS_3 = (-GRAVITY * h0y_bar * 2.0 * z1y_bar) / DYL;
 
-
-	agent->h = agent->h - (TIMESTEP / DXL) * (FPlus.x - FMinus.x) - (TIMESTEP / DYL) * (GPlus.x - GMinus.x) + TIMESTEP * SS_1;
-	agent->qx = agent->qx - (TIMESTEP / DXL) * (FPlus.y - FMinus.y) - (TIMESTEP / DYL) * (GPlus.y - GMinus.y) + TIMESTEP * SS_2;
-	agent->qy = agent->qy - (TIMESTEP / DXL) * (FPlus.z - FMinus.z) - (TIMESTEP / DYL) * (GPlus.z - GMinus.z) + TIMESTEP * SS_3;
-
-
-
-	//printf("x =%d \t\t y=%d L0h=%f \t L0qx=%f  \t L0qy=%f  \n",agent->x, agent->y, L0h, L0qx, L0qy);
+	// Update FV update function with adaptive timestep
+	agent->h = agent->h - (dt / DXL) * (FPlus.x - FMinus.x) - (dt / DYL) * (GPlus.x - GMinus.x) + dt * SS_1;
+	agent->qx = agent->qx - (dt / DXL) * (FPlus.y - FMinus.y) - (dt / DYL) * (GPlus.y - GMinus.y) + dt * SS_2;
+	agent->qy = agent->qy - (dt / DXL) * (FPlus.z - FMinus.z) - (dt / DYL) * (GPlus.z - GMinus.z) + dt * SS_3;
 
 
-	// Secure zero velocities at the wet/dry front // Adaptive dt needs to be added to the model with dynamic dt (Using Set functions)
-	//////double h0 = agent->h;
 
-	//if (agent->h <= TOL_H) //not working
-	//{
-	//	agent->qx = 0.0;
-	//	agent->qy = 0.0;
-	//}
-	//else
-	//{
-	//	agent->qx = agent->qx;
-	//	agent->qy = agent->qy;
-	//}
 
-	//////	
-	//////	//this needs to be set high, so it is ignored in the timestep reduction stage
-	//////	agent->timeStep = BIG_NUMBER;
-	//////}
-	//////else
-	//////{
-	//////	double up = agent->qx / h0;
-	//////	double vp = agent->qy / h0;
+	// Secure zero velocities at the wet/dry front
 
-	//////	//store for timestep calc
-	//////	double xStep = CFL * DXL / (fabs(up) + sqrt(GRAVITY * h0));
-	//////	double yStep = CFL * DYL / (fabs(vp) + sqrt(GRAVITY * h0));
+	double hp = agent->h;
 
-	//////	agent->timeStep = min(xStep, yStep);
+	// Removes zero from taking the minumum of dt from the agents once it is checked in the next iteration 
+	// for those agents with hp < TOL_H , in other words assign big number to the dry cells (not retaining zero dt)
+	agent->timeStep = BIG_NUMBER;
 
-	//////	//TIMESTEP = agent->timeStep;
-	//////}
+	//// ADAPTIVE TIME STEPPING
+	if (hp <= TOL_H)
+	{
+		agent->qx = 0.0;
+		agent->qy = 0.0;
+
+	}
+	else
+	{
+		double up = agent->qx / hp;
+		double vp = agent->qy / hp;
+
+		//store for timestep calc
+		agent->timeStep = fminf(CFL * DXL / (fabs(up) + sqrt(GRAVITY * hp)), CFL * DYL / (fabs(vp) + sqrt(GRAVITY * hp)));
+
+	}
 
 	return 0;
 }
@@ -1307,4 +1331,4 @@ inline __device__ double3 G_SWE(double hh, double qx, double qy)
 
 }
 
-#endif 
+#endif
