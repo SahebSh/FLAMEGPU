@@ -1258,7 +1258,7 @@ __FLAME_GPU_FUNC__ int ProcessSpaceOperatorMessage(xmachine_memory_FloodCell* ag
 	double SS_3 = (-GRAVITY * h0y_bar * 2.0 * z1y_bar) / DYL;
 
 	// Update FV update function with adaptive timestep
-	agent->h = agent->h - (dt / DXL) * (FPlus.x - FMinus.x) - (dt / DYL) * (GPlus.x - GMinus.x) + dt * SS_1;
+	agent->h  = agent->h -  (dt / DXL) * (FPlus.x - FMinus.x) - (dt / DYL) * (GPlus.x - GMinus.x) + dt * SS_1;
 	agent->qx = agent->qx - (dt / DXL) * (FPlus.y - FMinus.y) - (dt / DYL) * (GPlus.y - GMinus.y) + dt * SS_2;
 	agent->qy = agent->qy - (dt / DXL) * (FPlus.z - FMinus.z) - (dt / DYL) * (GPlus.z - GMinus.z) + dt * SS_3;
 
@@ -1357,21 +1357,22 @@ __FLAME_GPU_FUNC__ int updateNavmap(xmachine_memory_navmap* agent, xmachine_mess
 
 	xmachine_message_FloodData* msg = get_first_FloodData_message<DISCRETE_2D>(FloodData_messages, agent->x, agent->y);
 
-	if (msg->inDomain)
-	{
+	
 
 		while (msg)
 			{
-			if (agent->y == msg->y && msg->x == agent->x)
-			{
-				agent->h = msg->h;
+
+					if (agent->x == msg->x && agent->y == msg->y)
+					{
+						agent->h = msg->h;
+						agent->z0 = msg->z0;
+						agent->qx = msg->qx;
+						agent->qy = msg->qy;
+					}
+
+			msg = get_next_FloodData_message<DISCRETE_2D>(msg, FloodData_messages);
+
 			}
-
-				msg = get_next_FloodData_message<DISCRETE_2D>(msg, FloodData_messages);
-
-			}
-
-	}
 	
 
 	return 0;

@@ -841,7 +841,7 @@
           </gpu:variable>
         </variables>
         <gpu:partitioningDiscrete>
-          <gpu:radius>1</gpu:radius>
+          <gpu:radius>0</gpu:radius>
         </gpu:partitioningDiscrete>
         <gpu:bufferSize>4096</gpu:bufferSize>
       </gpu:message>
