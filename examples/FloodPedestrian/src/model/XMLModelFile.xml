@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<gpu:xmodel xmlns:gpu="http://www.dcs.shef.ac.uk/~paul/XMMLGPU"
-        xmlns="http://www.dcs.shef.ac.uk/~paul/XMML">
-  <name>floodPed</name>
+<gpu:xmodel xmlns:gpu="http://www.dcs.shef.ac.uk/~paul/XMMLGPU" xmlns="http://www.dcs.shef.ac.uk/~paul/XMML">
+  <name>Optional </name>
   <gpu:environment>
-    <!--Constant variables of the model-->
     <gpu:constants>
-      <!--flood model constant variables-->
       <gpu:variable>
+        <!--relevant to flood model-->
         <type>double</type>
         <name>xmin</name>
       </gpu:variable>
@@ -30,20 +28,23 @@
         <type>double</type>
         <name>DXL</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>double</type>
         <name>DYL</name>
-      </gpu:variable>
-
-      <!--Pedestrian model constant variables-->
+        <!--relevant to pedestrian model-->
+       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT1</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT2</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT3</name>
@@ -52,130 +53,158 @@
         <type>float</type>
         <name>EMMISION_RATE_EXIT4</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT5</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT6</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT7</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT1_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT2_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT3_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT4_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT5_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT6_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT7_PROBABILITY</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT1_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT2_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT3_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT4_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT5_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT6_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT7_STATE</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT1_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT2_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT3_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT4_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT5_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT6_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>int</type>
         <name>EXIT7_CELL_COUNT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>TIME_SCALER</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>STEER_WEIGHT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>AVOID_WEIGHT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>COLLISION_WEIGHT</name>
       </gpu:variable>
+      
       <gpu:variable>
         <type>float</type>
         <name>GOAL_WEIGHT</name>
       </gpu:variable>
     </gpu:constants>
-
-    <!--Shared source code -->
+    
+    <!--Shared source code-->
     <gpu:functionFiles>
       <file>functions.c</file>
     </gpu:functionFiles>
-
-    <!--Init function for initialising dx , dy, dt-->
+    
     <gpu:initFunctions>
       <gpu:initFunction>
         <gpu:name>initConstants</gpu:name>
@@ -187,200 +216,199 @@
         <gpu:name>DELTA_T_func</gpu:name>
       </gpu:stepFunction>
     </gpu:stepFunctions>
-
+    
   </gpu:environment>
+  <!--Flood Agent-->
   <xagents>
-    <!--Flood agent-->
-    <gpu:xagent>
-      <name>FloodCell</name>
-      <memory>
-        <gpu:variable>
-          <type>int</type>
-          <name>inDomain</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <!-- the type 'int' changed to 'int' MS01Sep2017-->
-          <name>x</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <name>y</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>z0</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>h</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qx</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qy</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>timeStep</name>
-          <!--This is to assign dynamic adaptive 'dt' with respect to CFL and velocities -  MS01Sep2017-->
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>minh_loc</name>
-          <!--This is to assign dynamic 'hmin' with respect to LFVs - MS01Sep2017-->
-        </gpu:variable>
-        <gpu:variable>
-          <!-- EAST LFV-->
-          <type>double</type>
-          <name>hFace_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qxFace_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qyFace_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!-- WEST LFV-->
-          <type>double</type>
-          <name>hFace_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qxFace_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qyFace_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!-- NORTH LFV-->
-          <type>double</type>
-          <name>hFace_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qxFace_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qyFace_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!-- SOUTH LFV-->
-          <type>double</type>
-          <name>hFace_S</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_S</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qxFace_S</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qyFace_S</name>
-        </gpu:variable>
-      </memory>
-      <functions>
-        <gpu:function>
-          <name>PrepareWetDry</name>
-          <currentState>Default</currentState>
-          <nextState>Default</nextState>
-          <outputs>
-            <gpu:output>
-              <messageName>WetDryMessage</messageName>
-              <gpu:type>single_message</gpu:type>
-            </gpu:output>
-          </outputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-        <gpu:function>
-          <name>ProcessWetDryMessage</name>
-          <currentState>Default</currentState>
-          <nextState>Default</nextState>
-          <inputs>
-            <gpu:input>
-              <messageName>WetDryMessage</messageName>
-            </gpu:input>
-          </inputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
+  <gpu:xagent>
+    <name>FloodCell</name>
+    <memory>
+      <gpu:variable>
+        <type>int</type>
+        <name>inDomain</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>x</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>y</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>z0</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>h</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qx</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qy</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>timeStep</name>
+        <!--This is to assign dynamic adaptive 'dt' with respect to CFL and velocities -  MS01Sep2017-->
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>minh_loc</name>
+        <!--This is to assign dynamic 'hmin' with respect to LFVs - MS01Sep2017-->
+      </gpu:variable>
+      <gpu:variable>
+        <!-- EAST LFV-->
+        <type>double</type>
+        <name>hFace_E</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>etFace_E</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qxFace_E</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qyFace_E</name>
+      </gpu:variable>
+      <gpu:variable>
+        <!-- WEST LFV-->
+        <type>double</type>
+        <name>hFace_W</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>etFace_W</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qxFace_W</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qyFace_W</name>
+      </gpu:variable>
+      <gpu:variable>
+        <!-- NORTH LFV-->
+        <type>double</type>
+        <name>hFace_N</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>etFace_N</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qxFace_N</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qyFace_N</name>
+      </gpu:variable>
+      <gpu:variable>
+        <!-- SOUTH LFV-->
+        <type>double</type>
+        <name>hFace_S</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>etFace_S</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qxFace_S</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>double</type>
+        <name>qyFace_S</name>
+      </gpu:variable>
+    </memory>
+    <functions>
+      <gpu:function>
+        <name>PrepareWetDry</name>
+        <currentState>Default</currentState>
+        <nextState>Default</nextState>
+        <outputs>
+          <gpu:output>
+            <messageName>WetDryMessage</messageName>
+            <gpu:type>single_message</gpu:type>
+          </gpu:output>
+        </outputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+      <gpu:function>
+        <name>ProcessWetDryMessage</name>
+        <currentState>Default</currentState>
+        <nextState>Default</nextState>
+        <inputs>
+          <gpu:input>
+            <messageName>WetDryMessage</messageName>
+          </gpu:input>
+        </inputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
 
-        <gpu:function>
-          <name>PrepareSpaceOperator</name>
-          <currentState>Default</currentState>
-          <nextState>Default</nextState>
-          <outputs>
-            <gpu:output>
-              <messageName>SpaceOperatorMessage</messageName>
-              <gpu:type>single_message</gpu:type>
-            </gpu:output>
-          </outputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-        <gpu:function>
-          <name>ProcessSpaceOperatorMessage</name>
-          <currentState>Default</currentState>
-          <nextState>Default</nextState>
-          <inputs>
-            <gpu:input>
-              <messageName>SpaceOperatorMessage</messageName>
-            </gpu:input>
-          </inputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-  <!--outputting flood agent's info to navCell agents-->
-        <gpu:function>
-          <name>outputFloodData</name>
-          <currentState>Default</currentState>
-          <nextState>Default</nextState>
-          <outputs>
-            <gpu:output>
-              <messageName>FloodDataMessage</messageName>
-              <gpu:type>single_message</gpu:type>
-            </gpu:output>
-          </outputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-          
-      </functions>
-      <states>
-        <gpu:state>
-          <name>Default</name>
-        </gpu:state>
-        <initialState>Default</initialState>
-      </states>
-      <gpu:type>discrete</gpu:type>
-      <gpu:bufferSize>4096</gpu:bufferSize>
-    </gpu:xagent>
-
-    <!--Pedestrian agent-->
+      <gpu:function>
+        <name>PrepareSpaceOperator</name>
+        <currentState>Default</currentState>
+        <nextState>Default</nextState>
+        <outputs>
+          <gpu:output>
+            <messageName>SpaceOperatorMessage</messageName>
+            <gpu:type>single_message</gpu:type>
+          </gpu:output>
+        </outputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+      <gpu:function>
+        <name>ProcessSpaceOperatorMessage</name>
+        <currentState>Default</currentState>
+        <nextState>Default</nextState>
+        <inputs>
+          <gpu:input>
+            <messageName>SpaceOperatorMessage</messageName>
+          </gpu:input>
+        </inputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+      <!--This function outputs the information of flood agents to navmap agents-->
+      <gpu:function>
+        <name>outputFloodData</name>
+        <currentState>Default</currentState>
+        <nextState>Default</nextState>
+        <outputs>
+          <gpu:output>
+            <messageName>FloodData</messageName>
+            <gpu:type>single_message</gpu:type>
+          </gpu:output>
+        </outputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+    </functions>
+    <states>
+      <gpu:state>
+        <name>Default</name>
+      </gpu:state>
+      <initialState>Default</initialState>
+    </states>
+    <gpu:type>discrete</gpu:type>
+    <gpu:bufferSize>4096</gpu:bufferSize>
+  </gpu:xagent>
+  
+  
+  <!--Pedestrian agent-->
     <gpu:xagent>
       <name>agent</name>
       <memory>
@@ -434,7 +462,9 @@
           <name>animate_dir</name>
         </gpu:variable>
       </memory>
+      
       <functions>
+        
         <gpu:function>
           <name>output_pedestrian_location</name>
           <currentState>default</currentState>
@@ -448,6 +478,8 @@
           <gpu:reallocate>false</gpu:reallocate>
           <gpu:RNG>false</gpu:RNG>
         </gpu:function>
+        
+        
         <gpu:function>
           <name>avoid_pedestrians</name>
           <currentState>default</currentState>
@@ -460,6 +492,8 @@
           <gpu:reallocate>false</gpu:reallocate>
           <gpu:RNG>true</gpu:RNG>
         </gpu:function>
+        
+        
         <gpu:function>
           <name>force_flow</name>
           <currentState>default</currentState>
@@ -472,6 +506,8 @@
           <gpu:reallocate>true</gpu:reallocate>
           <gpu:RNG>true</gpu:RNG>
         </gpu:function>
+        
+        
         <gpu:function>
           <name>move</name>
           <currentState>default</currentState>
@@ -480,6 +516,8 @@
           <gpu:RNG>false</gpu:RNG>
         </gpu:function>
       </functions>
+      
+      
       <states>
         <gpu:state>
           <name>default</name>
@@ -488,9 +526,9 @@
       </states>
       <gpu:type>continuous</gpu:type>
       <gpu:bufferSize>4096</gpu:bufferSize>
+      
     </gpu:xagent>
-
-    <!--Navigation agent-->
+    
     <gpu:xagent>
       <name>navmap</name>
       <memory>
@@ -502,7 +540,6 @@
           <type>int</type>
           <name>y</name>
         </gpu:variable>
-        <!--Water flow data-->
         <gpu:variable>
           <type>double</type>
           <name>z0</name>
@@ -519,6 +556,7 @@
           <type>double</type>
           <name>qy</name>
         </gpu:variable>
+        
         <gpu:variable>
           <type>int</type>
           <name>exit_no</name>
@@ -592,9 +630,8 @@
           <name>exit6_y</name>
         </gpu:variable>
       </memory>
+     
       <functions>
-        
-        <!-- To broadcast the info of Navmap agents-->
         <gpu:function>
           <name>output_navmap_cells</name>
           <currentState>static</currentState>
@@ -609,21 +646,6 @@
           <gpu:RNG>false</gpu:RNG>
         </gpu:function>
         
-        <!-- A function to update the Navmap with Flood data-->
-        <gpu:function>
-          <name>updateNavmap</name>
-          <currentState>static</currentState>
-          <nextState>static</nextState>
-          <inputs>
-            <gpu:input>
-              <messageName>FloodDataMessage</messageName>
-            </gpu:input>
-          </inputs>
-          <gpu:reallocate>false</gpu:reallocate>
-          <gpu:RNG>false</gpu:RNG>
-        </gpu:function>
-        
-        
         <gpu:function>
           <name>generate_pedestrians</name>
           <currentState>static</currentState>
@@ -637,7 +659,22 @@
           <gpu:reallocate>false</gpu:reallocate>
           <gpu:RNG>true</gpu:RNG>
         </gpu:function>
-      </functions>
+      
+
+      <gpu:function>
+        <name>updateNavmap</name>
+        <currentState>static</currentState>
+        <nextState>static</nextState>
+        <inputs>
+          <gpu:input>
+            <messageName>FloodData</messageName>
+          </gpu:input>
+        </inputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+        
+     </functions>
       
       <states>
         <gpu:state>
@@ -649,162 +686,167 @@
       <gpu:bufferSize>4096</gpu:bufferSize>
     </gpu:xagent>
   </xagents>
+  
 
-  <messages>
-    <!--Flood model message 1 : friction contribution-->
-    <gpu:message>
-      <name>WetDryMessage</name>
-      <variables>
-        <gpu:variable>
-          <type>int</type>
-          <name>inDomain</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <name>x</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <name>y</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>min_hloc</name>
-        </gpu:variable>
-      </variables>
-      <gpu:partitioningDiscrete>
-        <gpu:radius>1</gpu:radius>
-      </gpu:partitioningDiscrete>
-      <gpu:bufferSize>4096</gpu:bufferSize>
-    </gpu:message>
-    
-    <!--Flood model message 2 : SWE solver-->
-    <gpu:message>
-      <name>SpaceOperatorMessage</name>
-      <variables>
-        <gpu:variable>
-          <type>int</type>
-          <name>inDomain</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <name>x</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <name>y</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!--EAST-->
-          <type>double</type>
-          <name>hFace_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_X_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_Y_E</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!--WEST-->
-          <type>double</type>
-          <name>hFace_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_X_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_Y_W</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!--NORTH-->
-          <type>double</type>
-          <name>hFace_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_X_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_Y_N</name>
-        </gpu:variable>
-        <gpu:variable>
-          <!--SOUTH-->
-          <type>double</type>
-          <name>hFace_S</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>etFace_S</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_X_S</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qFace_Y_S</name>
-        </gpu:variable>
-      </variables>
-      <gpu:partitioningDiscrete>
-        <gpu:radius>1</gpu:radius>
-      </gpu:partitioningDiscrete>
-      <gpu:bufferSize>4096</gpu:bufferSize>
-    </gpu:message>
-    
-    <!--A Message to broadcast the information of flood agent to navCells-->
-    <gpu:message>
-      <name>FloodDataMessage</name>
-      <variables>
-        <gpu:variable>
-          <type>int</type>
-          <name>x</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>int</type>
-          <name>y</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>z0</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>h</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qx</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qy</name>
-        </gpu:variable>
-       </variables>
-      <gpu:partitioningDiscrete>
-        <gpu:radius>1</gpu:radius>
-      </gpu:partitioningDiscrete>
-      <gpu:bufferSize>4096</gpu:bufferSize>
+    <messages>
+      <!--Flood model message 1-->
+      <gpu:message>
+        <name>WetDryMessage</name>
+        <variables>
+          <gpu:variable>
+            <type>int</type>
+            <name>inDomain</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>int</type>
+            <name>x</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>int</type>
+            <name>y</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>min_hloc</name>
+          </gpu:variable>
+        </variables>
+        <gpu:partitioningDiscrete>
+          <gpu:radius>1</gpu:radius>
+        </gpu:partitioningDiscrete>
+        <gpu:bufferSize>4096</gpu:bufferSize>
       </gpu:message>
 
-    <!--Pedestrian model message 1 : Sharing location between pedestrians-->
+      <!--Flood model message 2-->
+      <gpu:message>
+        <name>SpaceOperatorMessage</name>
+        <variables>
+          <gpu:variable>
+            <type>int</type>
+            <name>inDomain</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>int</type>
+            <name>x</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>int</type>
+            <name>y</name>
+          </gpu:variable>
+          <gpu:variable>
+            <!--EAST-->
+            <type>double</type>
+            <name>hFace_E</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>etFace_E</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_X_E</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_Y_E</name>
+          </gpu:variable>
+          <gpu:variable>
+            <!--WEST-->
+            <type>double</type>
+            <name>hFace_W</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>etFace_W</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_X_W</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_Y_W</name>
+          </gpu:variable>
+          <gpu:variable>
+            <!--NORTH-->
+            <type>double</type>
+            <name>hFace_N</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>etFace_N</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_X_N</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_Y_N</name>
+          </gpu:variable>
+          <gpu:variable>
+            <!--SOUTH-->
+            <type>double</type>
+            <name>hFace_S</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>etFace_S</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_X_S</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qFace_Y_S</name>
+          </gpu:variable>
+        </variables>
+        <gpu:partitioningDiscrete>
+          <gpu:radius>1</gpu:radius>
+        </gpu:partitioningDiscrete>
+        <gpu:bufferSize>4096</gpu:bufferSize>
+      </gpu:message>
+      
+      <!--Message to retain the info of flood agents -->
+      <gpu:message>
+        <name>FloodData</name>
+        <variables>
+          <gpu:variable>
+            <type>int</type>
+            <name>inDomain</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>int</type>
+            <name>x</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>int</type>
+            <name>y</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>z0</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>h</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qx</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>qy</name>
+          </gpu:variable>
+        </variables>
+        <gpu:partitioningDiscrete>
+          <gpu:radius>1</gpu:radius>
+        </gpu:partitioningDiscrete>
+        <gpu:bufferSize>4096</gpu:bufferSize>
+      </gpu:message>
+
+    <!--Pedestian model message 1-->
     <gpu:message>
       <name>pedestrian_location</name>
       <variables>
@@ -832,8 +874,6 @@
       </gpu:partitioningSpatial>
       <gpu:bufferSize>4096</gpu:bufferSize>
     </gpu:message>
-
-    <!--Pedestrian model message 2 : Navigation data and force calculations-->
     <gpu:message>
       <name>navmap_cell</name>
       <variables>
@@ -844,22 +884,6 @@
         <gpu:variable>
           <type>int</type>
           <name>y</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>z0</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>h</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qx</name>
-        </gpu:variable>
-        <gpu:variable>
-          <type>double</type>
-          <name>qy</name>
         </gpu:variable>
         <gpu:variable>
           <type>int</type>
@@ -933,89 +957,93 @@
           <type>float</type>
           <name>exit6_y</name>
         </gpu:variable>
-        <!-- containing the info of flood agent in the message-->
       </variables>
       <gpu:partitioningDiscrete>
         <gpu:radius>0</gpu:radius>
       </gpu:partitioningDiscrete>
       <gpu:bufferSize>4096</gpu:bufferSize>
     </gpu:message>
-
-
   </messages>
+  
   <layers>
+    <!--layer 1-->
     <layer>
-      <!--LAYER 1-->
       <gpu:layerFunction>
         <name>PrepareWetDry</name>
       </gpu:layerFunction>
+      
       <gpu:layerFunction>
         <name>generate_pedestrians</name>
       </gpu:layerFunction>
     </layer>
-
+    
+    <!--layer 2-->
+    
     <layer>
-      <!--LAYER 2-->
       <gpu:layerFunction>
         <name>ProcessWetDryMessage</name>
       </gpu:layerFunction>
+
       <gpu:layerFunction>
         <name>output_pedestrian_location</name>
       </gpu:layerFunction>
+       
     </layer>
-
+    
+    <!--layer 3-->
     <layer>
-      <!--LAYER 3-->
       <gpu:layerFunction>
         <name>PrepareSpaceOperator</name>
       </gpu:layerFunction>
+      
       <gpu:layerFunction>
         <name>avoid_pedestrians</name>
       </gpu:layerFunction>
     </layer>
 
+    <!--layer 4-->
     <layer>
-      <!--LAYER 4-->
       <gpu:layerFunction>
         <name>ProcessSpaceOperatorMessage</name>
       </gpu:layerFunction>
     </layer>
 
+    <!--layer 5-->
     <layer>
-      <!--LAYER 5-->
       <gpu:layerFunction>
         <name>outputFloodData</name>
       </gpu:layerFunction>
     </layer>
     
+    <!--layer 6-->
     <layer>
-    <!--LAYER 6-->
-    <gpu:layerFunction>
-      <name>updateNavmap</name>
-    </gpu:layerFunction>
-  </layer>
-
+      <gpu:layerFunction>
+        <name>updateNavmap</name>
+      </gpu:layerFunction>
+    </layer>
+    
+    <!--layer 7-->
     <layer>
-    <!--LAYER 7-->
     <gpu:layerFunction>
       <name>output_navmap_cells</name>
     </gpu:layerFunction>
     </layer>
     
+    <!--layer 8-->
     <layer>
-    <!--LAYER 8-->
-      <gpu:layerFunction>
-        <name>force_flow</name>
-      </gpu:layerFunction>
+    <gpu:layerFunction>
+      <name>force_flow</name>
+    </gpu:layerFunction>
     </layer>
-
+    
+    <!--layer 9-->
     <layer>
-      <!--LAYER 9-->
       <gpu:layerFunction>
         <name>move</name>
       </gpu:layerFunction>
     </layer>
     
-
+    
   </layers>
+  
 </gpu:xmodel>

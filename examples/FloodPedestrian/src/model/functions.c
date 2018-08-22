@@ -17,27 +17,14 @@
 #ifndef _FLAMEGPU_FUNCTIONS
 #define _FLAMEGPU_FUNCTIONS
 
+#include "header.h"
+#include "CustomVisualisation.h"
+#include "cutil_math.h"
 
  // This is to output the computational time for each message function within each iteration (added by MS22May2018) 
  //#define INSTRUMENT_ITERATIONS 1
  //#define INSTRUMENT_AGENT_FUNCTIONS 1
  //#define OUTPUT_POPULATION_PER_ITERATION 1
-#if _DEBUG
-#define DEBUG_LOG( x, ... ) printf( x, __VA_ARGS__ );
-#define DEBUG_LOG_POSITION( name, position ) printf( name ": %f, %f, %f\r\n", position.x, position.y, position.z )
-#else
-#define DEBUG_LOG( x, ... )
-#define DEBUG_LOG_POSITION( name, position )
-#endif
-
-#include "header.h"
-#include "CustomVisualisation.h"
-#include "cutil_math.h"
-
-#define SCALE_FACTOR 0.03125
-#define I_SCALER (SCALE_FACTOR*0.35f)
-#define MESSAGE_RADIUS d_message_pedestrian_location_radius
-#define MIN_DISTANCE 0.0001f
 
  // global constant of the flood model
 #define epsilon 1.0e-3
@@ -46,13 +33,18 @@
 #define GLOBAL_MANNING 0.018000 // has been set to the three humps test case, originally 0.0185
 #define CFL 0.5
 #define TOL_H 10.0e-4
-#define BIG_NUMBER 800000  
+#define BIG_NUMBER 800000             // Used in WetDryMessage to skip extra calculations MS05Sep2017
+
+// Pedestrian model constants
+#define SCALE_FACTOR 0.03125
+#define I_SCALER (SCALE_FACTOR*0.35f)
+#define MESSAGE_RADIUS d_message_pedestrian_location_radius
+#define MIN_DISTANCE 0.0001f
 
 //#define NUM_EXITS 7
 
 #define PI 3.1415f
 #define RADIANS(x) (PI / 180.0f) * x
-
 
 __FLAME_GPU_INIT_FUNC__ void initConstants()
 {
@@ -424,6 +416,17 @@ inline __device__ LFVResult LFV(const AgentFlowData& FlowData)
 __FLAME_GPU_FUNC__ int PrepareSpaceOperator(xmachine_memory_FloodCell* agent, xmachine_message_SpaceOperatorMessage_list* SpaceOperatorMessage_messages)
 {
 	AgentFlowData FlowData = GetFlowDataFromAgent(agent);
+
+	//AgentFlowData EastBound;
+	//AgentFlowData WestBound;
+	//AgentFlowData NorthBound;
+	//AgentFlowData SouthBound;
+
+
+	//centbound(agent, FlowData, EastBound);
+	//centbound(agent, FlowData, WestBound);
+	//centbound(agent, FlowData, NorthBound);
+	//centbound(agent, FlowData, SouthBound);
 
 
 	LFVResult faceLFV = LFV(FlowData);
@@ -1341,53 +1344,40 @@ inline __device__ double3 G_SWE(double hh, double qx, double qy)
 
 }
 
-//__FLAME_GPU_FUNC__ int outputFloodData(xmachine_memory_FloodCell* agent, xmachine_message_SpaceOperatorMessage_list* SpaceOperatorMessage_messages)
-__FLAME_GPU_FUNC__ int outputFloodData(xmachine_memory_FloodCell* agent, xmachine_message_FloodDataMessage_list* FloodDataMessage_messages)
+__FLAME_GPU_FUNC__ int outputFloodData(xmachine_memory_FloodCell* agent, xmachine_message_FloodData_list* FloodData_messages)
 {
 
-		//broadcast internal flow variables of flood agents values to surrounding cells
-		add_FloodDataMessage_message<DISCRETE_2D>(FloodDataMessage_messages, agent->x, agent->y, agent->z0, agent->h, agent->qx, agent->qy);
+	add_FloodData_message<DISCRETE_2D>(FloodData_messages, 1, agent->x, agent->y, agent->z0, agent->h, agent->qx, agent->qy);
 
-
-	return 0;
+	return 0; 
 }
 
-// Updating the state of NavCell agents with flood information
-__FLAME_GPU_FUNC__ int updateNavmap(xmachine_memory_navmap* agent, xmachine_message_FloodDataMessage_list* FloodDataMessage_messages) {
+__FLAME_GPU_FUNC__ int updateNavmap(xmachine_memory_navmap* agent, xmachine_message_FloodData_list* FloodData_messages)
+{
 
+	xmachine_message_FloodData* msg = get_first_FloodData_message<DISCRETE_2D>(FloodData_messages, agent->x, agent->y);
 
-		//looking up neighbours values 
-		xmachine_message_FloodDataMessage* msg = get_first_FloodDataMessage_message<DISCRETE_2D>(FloodDataMessage_messages, agent->x, agent->y);
-
-		int count = 0;
+	if (msg->inDomain)
+	{
 
 		while (msg)
-		{
-			count++;
-			//if (msg->x == agent->x 
-			//	&& msg->y == agent->y)
+			{
+			if (agent->y == msg->y && msg->x == agent->x)
+			{
+				agent->h = msg->h;
+			}
 
-				if  ( msg->x == agent->x 
-				&& agent->y == msg->y ) 
-				{
-					agent->z0 = msg->z0;
-					agent->h  = msg->h;
-					agent->qx = msg->qx;
-					agent->qy = msg->qy;
-				}
+				msg = get_next_FloodData_message<DISCRETE_2D>(msg, FloodData_messages);
 
-			
+			}
 
-			msg = get_next_FloodDataMessage_message<DISCRETE_2D>(msg, FloodDataMessage_messages);
-		}
-
-
+	}
+	
 
 	return 0;
 }
 
 
-// Pedestrian agent functions
 
 __FLAME_GPU_FUNC__ int getNewExitLocation(RNG_rand48* rand48){
 
@@ -1448,7 +1438,7 @@ __FLAME_GPU_FUNC__ int output_pedestrian_location(xmachine_memory_agent* agent, 
 __FLAME_GPU_FUNC__ int output_navmap_cells(xmachine_memory_navmap* agent, xmachine_message_navmap_cell_list* navmap_cell_messages){
     
 	add_navmap_cell_message<DISCRETE_2D>(navmap_cell_messages, 
-		agent->x, agent->y, agent->z0, agent->h, agent->qx, agent->qy,
+		agent->x, agent->y, 
 		agent->exit_no, 
 		agent->height,
 		agent->collision_x, agent->collision_y, 
@@ -1462,6 +1452,8 @@ __FLAME_GPU_FUNC__ int output_navmap_cells(xmachine_memory_navmap* agent, xmachi
        
     return 0;
 }
+
+
 
 /**
  * move FLAMEGPU Agent Function
@@ -1536,7 +1528,6 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 
 	//agent death flag
 	int kill_agent = 0;
-
 
 	//goal force
 	glm::vec2 goal_force;

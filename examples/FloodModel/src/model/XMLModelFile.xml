@@ -63,7 +63,6 @@
                 </gpu:variable>
                 <gpu:variable>
                     <type>int</type>
-                    <!-- the type 'int' changed to 'int' MS01Sep2017-->
                     <name>x</name>
                 </gpu:variable>
                 <gpu:variable>
