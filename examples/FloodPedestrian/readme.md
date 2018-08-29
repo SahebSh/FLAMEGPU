@@ -1,7 +1,16 @@
-# FLAME GPU Example: PedestrianNavigation
+# FLAME GPU Example: Pedestrian Flood Navigation
 
-A pedestrian simulation based on Reynolds Social Force Model.
+A model which combines the flood model (see separate flood model example) with the FLAMGPU pedestrian navigation example.
 
-The environment is based on an area of London, with several input / output locations.
+# Generating initial state files
 
-This example includes a complex custom visualisation, with various controls and rendering options.
+TODO: 
+
+An example input file which follows the above instructions is provided in iterations\map.xml
+
+# Expected output
+
+The model can be run in visualisation mode. By default pedestrians will be shown with navigation agents. To view the flood model use the 'f' key.
+
+
+
