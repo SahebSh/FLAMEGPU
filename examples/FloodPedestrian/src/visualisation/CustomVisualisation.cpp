@@ -27,6 +27,7 @@
 #include "GLUTInputController.h"
 #include "PedestrianPopulation.h"
 #include "NavMapPopulation.h"
+#include "FloodMap.h"
 #include "MenuDisplay.h"
 #include "GlobalsController.h"
 
@@ -80,6 +81,9 @@ extern void initVisualisation()
 
 	//initialise input control
 	initInputConroller();
+
+	//init flood map
+	initFloodMap();
 
 	//init menu
 	initMenuItems();
@@ -174,6 +178,7 @@ void display(void)
 	stepFLAMESimulation();
 	renderNavMapPopulation();
 	renderPedestrianPopulation();
+	renderFloodMap();
 
 	drawInfoDisplay(window_width, window_height);
 	drawMenuDisplay(window_width, window_height);

@@ -21,6 +21,7 @@
 #include "GLUTInputController.h"
 #include "MenuDisplay.h"
 #include "NavMapPopulation.h"
+#include "FloodMap.h"
 #include "GlobalsController.h"
 #include "MenuDisplay.h"
 
@@ -242,7 +243,7 @@ void keyboard( unsigned char key, int x, int y)
 			toggleGridDisplayOnOff();
 			break;
 		}
-		case('f'):
+		case('F'):
 		{
 			toggleFullScreenMode();
 			break;
@@ -269,6 +270,24 @@ void keyboard( unsigned char key, int x, int y)
 			zoom_key = !zoom_key;
 			break;
 		}
+		case('f'):
+		{
+			toggleFloodMapOnOff();
+			break;
+		}
+		case('w'):
+		{
+			setFloodMapOnOff(TOGGLE_ON);
+			setFloodMapDisplayMode(FLOODMAP_VIEW_WATER);
+			break;
+		}
+		case('b'):
+		{
+			setFloodMapOnOff(TOGGLE_ON);
+			setFloodMapDisplayMode(FLOODMAP_VIEW_Z0);
+			break;
+		}
+
 		
 
 		//exit

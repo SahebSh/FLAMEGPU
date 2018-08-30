@@ -22,6 +22,9 @@
     <CudaCompile Include="src\visualisation\PedestrianPopulation.cu">
       <Filter>visualisation</Filter>
     </CudaCompile>
+    <CudaCompile Include="src\visualisation\FloodMap.cu">
+      <Filter>visualisation</Filter>
+    </CudaCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="XMML.h" />
@@ -54,6 +57,9 @@
       <Filter>visualisation</Filter>
     </ClInclude>
     <ClInclude Include="src\visualisation\PedestrianPopulation.h">
+      <Filter>visualisation</Filter>
+    </ClInclude>
+    <ClInclude Include="src\visualisation\FloodMap.h">
       <Filter>visualisation</Filter>
     </ClInclude>
   </ItemGroup>
@@ -123,6 +129,9 @@
       <Filter>visualisation</Filter>
     </ClCompile>
     <ClCompile Include="src\visualisation\PedestrianPopulation.cpp">
+      <Filter>visualisation</Filter>
+    </ClCompile>
+    <ClCompile Include="src\visualisation\FloodMap.cpp">
       <Filter>visualisation</Filter>
     </ClCompile>
   </ItemGroup>
