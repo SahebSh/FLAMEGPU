@@ -7,11 +7,13 @@ compound=true;
 subgraph cluster_0{
  color=blue; label=initFunctions;penwidth=3;  
 
+   initConstants [shape=box,penwidth=3];
 }
 
 subgraph cluster_1{
  color=blue;label=stepFunctions;penwidth=3; 
 
+   DELTA_T_func [shape=box,penwidth=3];
 }
 
 subgraph cluster_2{
@@ -19,8 +21,10 @@ subgraph cluster_2{
 
 }
 
+initConstants -> DELTA_T_func [ltail=cluster_0,lhead=cluster_1];
+
 {node [shape=plaintext, fontsize=16];/* the time-line graph */
- Layer->1->2->3->4->5->6->7->8->9;}
+ Layer->1->2->3->4->5->6->7->8->9->10->11->12->13->14;}
 
 {rank = same ;1;PrepareWetDry ;generate_pedestrians ;}
 
@@ -40,6 +44,16 @@ subgraph cluster_2{
 
 {rank = same ;9;move ;}
 
+{rank = same ;10;output_PedData ;}
+
+{rank = same ;11;updateNavmapData ;}
+
+{rank = same ;12;updateNeighbourNavmap ;}
+
+{rank = same ;13;outputNavmapData ;}
+
+{rank = same ;14;UpdateFloodTopo ;}
+
 subgraph cluster_3{
  label="FloodCell";color=blue; penwidth=3; 
 
@@ -53,6 +67,8 @@ subgraph cluster_3{
    SpaceOperatorMessage -> ProcessSpaceOperatorMessage [color=green4,penwidth=3];
    outputFloodData [shape=box,penwidth=3];
    outputFloodData -> FloodData [color=green4,penwidth=3];
+   UpdateFloodTopo [shape=box,penwidth=3];
+   NavmapData -> UpdateFloodTopo [color=green4,penwidth=3];
    "Default" -> PrepareWetDry ;
    PrepareWetDry -> "Default'";
    "Default'" -> ProcessWetDryMessage ;
@@ -63,7 +79,9 @@ subgraph cluster_3{
    ProcessSpaceOperatorMessage -> "Default''''";
    "Default''''" -> outputFloodData ;
    outputFloodData -> "Default'''''";
-  ""-> MID [style=invis];
+   "Default'''''" -> UpdateFloodTopo ;
+   UpdateFloodTopo -> "Default''''''";
+  "Default''''''"-> MID [style=invis];
 }
 
 subgraph cluster_4{
@@ -71,6 +89,8 @@ subgraph cluster_4{
 
    output_pedestrian_location [shape=box,penwidth=3];
    output_pedestrian_location -> pedestrian_location [color=green4,penwidth=3];
+   output_PedData [shape=box,penwidth=3];
+   output_PedData -> PedData [color=green4,penwidth=3];
    avoid_pedestrians [shape=box,penwidth=3];
    pedestrian_location -> avoid_pedestrians [color=green4,penwidth=3];
    force_flow [shape=box,penwidth=3];
@@ -84,7 +104,9 @@ subgraph cluster_4{
    force_flow -> "default'''";
    "default'''" -> move ;
    move -> "default''''";
-  "default''''"-> MID [style=invis];
+   "default''''" -> output_PedData ;
+   output_PedData -> "default'''''";
+  "Default''''''"-> MID [style=invis];
 }
 
 subgraph cluster_5{
@@ -95,21 +117,40 @@ subgraph cluster_5{
    generate_pedestrians [shape=box,penwidth=3];
    updateNavmap [shape=box,penwidth=3];
    FloodData -> updateNavmap [color=green4,penwidth=3];
+   updateNavmapData [shape=box,penwidth=3];
+   updateNavmapData -> updatedNavmapData [color=green4,penwidth=3];
+   PedData -> updateNavmapData [color=green4,penwidth=3];
+   updateNeighbourNavmap [shape=box,penwidth=3];
+   updatedNavmapData -> updateNeighbourNavmap [color=green4,penwidth=3];
+   outputNavmapData [shape=box,penwidth=3];
+   outputNavmapData -> NavmapData [color=green4,penwidth=3];
    "static" -> generate_pedestrians ;
    generate_pedestrians -> "static'";
    "static'" -> updateNavmap ;
    updateNavmap -> "static''";
    "static''" -> output_navmap_cells ;
    output_navmap_cells -> "static'''";
-  "default''''"-> MID [style=invis];
+   "static'''" -> updateNavmapData ;
+   updateNavmapData -> "static''''";
+   "static''''" -> updateNeighbourNavmap ;
+   updateNeighbourNavmap -> "static'''''";
+   "static'''''" -> outputNavmapData ;
+   outputNavmapData -> "static''''''";
+  "Default''''''"-> MID [style=invis];
 }
 
  START-> "Default"[style=invis] ;
 MID -> END [style=invis];
 
+initConstants -> START [style=invis];
+{rank = same ; START ; initConstants;}
+{rank = same ; MID ; DELTA_T_func;}
    WetDryMessage [shape=box][shape=diamond, label=WetDryMessage, fontcolor=green4, color=green4,penwidth=3];
    SpaceOperatorMessage [shape=box][shape=diamond, label=SpaceOperatorMessage, fontcolor=green4, color=green4,penwidth=3];
    FloodData [shape=box][shape=diamond, label=FloodData, fontcolor=green4, color=green4,penwidth=3];
+   NavmapData [shape=box][shape=diamond, label=NavmapData, fontcolor=green4, color=green4,penwidth=3];
    pedestrian_location [shape=box][shape=diamond, label=pedestrian_location, fontcolor=green4, color=green4,penwidth=3];
+   PedData [shape=box][shape=diamond, label=PedData, fontcolor=green4, color=green4,penwidth=3];
    navmap_cell [shape=box][shape=diamond, label=navmap_cell, fontcolor=green4, color=green4,penwidth=3];
+   updatedNavmapData [shape=box][shape=diamond, label=updatedNavmapData, fontcolor=green4, color=green4,penwidth=3];
 }

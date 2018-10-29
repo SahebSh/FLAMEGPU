@@ -61,7 +61,7 @@ extern void generate_instances(cudaGraphicsResource_t * instances_cgr);
 #define Z0_MAX 4.0f
 
 #define H_MIN 0.0f
-#define H_MAX 3.0f
+#define H_MAX 0.3f
 
 //Circle model fidelity
 const int SPHERE_SLICES = 8;

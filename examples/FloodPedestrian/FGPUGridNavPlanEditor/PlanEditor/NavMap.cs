@@ -1275,12 +1275,13 @@ namespace PlanEditor
             xmlOut.Write("\t<GOAL_WEIGHT>0.200000</GOAL_WEIGHT>\n");            // added by MS:09082018
 
             xmlOut.Write("</environment>\n\n");// added by MS:09082018
-            
+
             //int count = 0 ; // added by MS21082018
 
-            for (int y = 0; y < Height; y++)
+
+            for (int x = 0; x < Width; x++) // y was replaced by x and Height replaced by Width MS02102018
             {
-                for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++) // x was replaced by y and Width replaced by Height MS02102018
                 {
                     double height = heightGrid != null ? heightGrid[x, y] : 1;
                     double newx, newy;// newz; commented by MS:09-08-2018
@@ -1297,10 +1298,11 @@ namespace PlanEditor
                     //xmlOut.Write("<id>" + count + "</id>\n"); // added by MS21082018
                     xmlOut.Write("<x>" + x + "</x>\n");
                     xmlOut.Write("<y>" + y + "</y>\n");
-                    xmlOut.Write("<z0>0</z0>\n");
-                    xmlOut.Write("<h>0</h>\n");
-                    xmlOut.Write("<qx>0</qx>\n");
-                    xmlOut.Write("<qy>0</qy>\n");
+                   // xmlOut.Write("<z0>0</z0>\n");
+                  //  xmlOut.Write("<h>0</h>\n");
+                  //  xmlOut.Write("<qx>0</qx>\n");
+                  //  xmlOut.Write("<qy>0</qy>\n");
+
                     
                     xmlOut.Write("<height>"+height+"</height>\n");
                     
@@ -1328,14 +1330,15 @@ namespace PlanEditor
                     //}
                     //xmlOut.Write("<production_count>" + temp + "</production_count>\n");
                     //xmlOut.Write("<agent_type>" + temp + "</agent_type>\n");
-                    xmlOut.Write("<exit_no>" + exitLayer + "</exit_no>\n");  
+                    xmlOut.Write("<exit_no>" + exitLayer + "</exit_no>\n");
+                 //   xmlOut.Write("<sandbag_capacity>0</sandbag_capacity>\n");
                     //xmlOut.Write("<next_possible_id>" + temp + "</next_possible_id>\n");
                     //group_id = exitLayer * 200;
 
                     //xmlOut.Write("<last_group_id>" + group_id + "</last_group_id>\n");
                     //xmlOut.Write("<created>" + temp + "</created>\n"); 
 
-                   
+
                     //xmlOut.Write("<obstacle_type>" + obsTypeOut + "</obstacle_type>\n");
                     //xmlOut.Write("<x>" + newx + "</x>\n");
                     //xmlOut.Write("<y>" + newy + "</y>\n");

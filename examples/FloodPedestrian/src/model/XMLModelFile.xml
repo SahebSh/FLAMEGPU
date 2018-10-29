@@ -4,38 +4,286 @@
   <gpu:environment>
     <gpu:constants>
       <gpu:variable>
-        <!--relevant to flood model-->
+            <type>double</type>
+            <name>xmin</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>xmax</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>ymin</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>ymax</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>dt_ped</name> <!--To have different dt in presence and absence of flood water (increasing the simulation time)-->
+          </gpu:variable>
+         <gpu:variable>
+            <type>double</type>
+            <name>dt_flood</name> <!--To have different dt in presence and absence of flood water (increasing the simulation time)-->
+          </gpu:variable>
+         <gpu:variable>
+            <type>double</type>
+            <name>dt</name><!--general dt used in functions-->
+          </gpu:variable>
+      
+        <gpu:variable>
+            <type>int</type>
+            <name>auto_dt_on</name><!--to turn on/off adaptive time-step selection for flood simulation-->
+          </gpu:variable>
+        <gpu:variable>
+            <type>int</type>
+            <name>body_effect_on</name><!--to turn on/off the effect of human body on water propagation-->
+          </gpu:variable>
+      
+          <gpu:variable>
+            <type>double</type>
+            <name>sim_time</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>DXL</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>DYL</name>
+          </gpu:variable>
+          
+          <gpu:variable>
+            <type>double</type>
+            <name>FLOOD_START_TIME</name>
+          </gpu:variable>
+          <gpu:variable>
+            <type>double</type>
+            <name>DISCHARGE_PEAK_TIME</name>
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>FLOOD_END_TIME</name>
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>DISCHARGE_INITIAL</name>
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>DISCHARGE_PEAK</name>
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>DISCHARGE_END</name>
+          </gpu:variable>
+      
+          <!--dEFINING BOUNDARY STATUS--> 
+          <gpu:variable>
+          <type>int</type>
+            <name>INFLOW_BOUNDARY</name> <!-- NORTH:1  EAST:2  SOUTH:3  WEST:4-->
+          </gpu:variable>
+          
+            
+            <gpu:variable>
+          <type>int</type>
+            <name>BOUNDARY_EAST_STATUS</name> <!-- Transmissive:1  Reflective:2 -->
+          </gpu:variable>
+          
+          <gpu:variable>
+          <type>int</type>
+            <name>BOUNDARY_WEST_STATUS</name> <!-- Transmissive:1  Reflective:2 -->
+          </gpu:variable>
+          
+          <gpu:variable>
+          <type>int</type>
+            <name>BOUNDARY_NORTH_STATUS</name> <!-- Transmissive:1  Reflective:2 -->
+          </gpu:variable>
+          
+          <gpu:variable>
+          <type>int</type>
+            <name>BOUNDARY_SOUTH_STATUS</name> <!-- Transmissive:1  Reflective:2 -->
+          </gpu:variable>
+          
+          <gpu:variable>
+          <type>double</type>
+            <name>x1_boundary</name> <!-- the starting position were the opening of inflow is located for boundary-->
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>x2_boundary</name> <!-- the ending position were the opening of inflow is located for boundary-->
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>y1_boundary</name> <!-- the starting position were the opening of inflow is located for boundary-->
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>y2_boundary</name> <!-- the ending position were the opening of inflow is located for boundary-->
+          </gpu:variable>
+          <gpu:variable>
+          <type>double</type>
+            <name>init_depth_boundary</name> <!-- initial water depth at the boundary to support inflow discharge-->
+          </gpu:variable>
+          
+            <gpu:variable>
+          <type>int</type>
+            <name>evacuation_on</name> <!-- defines the time when people are informed to evacuate the area-->
+          </gpu:variable>
+              
+            <gpu:variable>
+          <type>double</type>
+            <name>evacuation_start_time</name> <!-- defines the time when people are informed to evacuate the area-->
+          </gpu:variable>
+      
+             <gpu:variable>
+          <type>int</type>
+            <name>evacuation_exit_number</name> <!-- defines the time when people are informed to evacuate the area-->
+          </gpu:variable>
+      
+      <!--constant variables relevant to Pedestrian model-->
+      
+        <gpu:variable>
+        <type>int</type>
+        <name>emer_alarm</name><!--Shows the status of flood severity based on Hazard Rate (HR) in at the start of flood-->
+      </gpu:variable>
+      <!--These variables are updated after each iteration to store the maximum number of people with different states during whole the simulation-->
+      <gpu:variable>
         <type>double</type>
-        <name>xmin</name>
+        <name>HR</name><!--hazard rate to be updated in each iteration, taken as global variable to calculate the maximum HR in the simulation-->
+      </gpu:variable>     
+      <gpu:variable>
+        <type>int</type>
+        <name>max_dead</name><!--hazard rate to be updated in each iteration, taken as global variable to calculate the maximum HR in the simulation-->
+      </gpu:variable>      
+        <gpu:variable>
+        <type>int</type>
+        <name>max_alive_wet</name><!--taken as global variable to calculate the maximum number of people could walk in wet area-->
+      </gpu:variable>
+     <gpu:variable>
+        <type>int</type>
+        <name>max_alive_walk</name><!--taken as global variable to calculate the maximum number of people who cannot run and in wet area-->
+      </gpu:variable>
+       <gpu:variable>
+        <type>int</type>
+        <name>max_alive_stuck</name><!--taken as global variable to calculate the maximum number of people who get stuck into water and cant move-->
       </gpu:variable>
       <gpu:variable>
         <type>double</type>
-        <name>xmax</name>
+        <name>max_velocity</name> <!--To store the maximum velocity of water in whole the domain in entire simulation-->
       </gpu:variable>
       <gpu:variable>
         <type>double</type>
-        <name>ymin</name>
-      </gpu:variable>
-      <gpu:variable>
-        <type>double</type>
-        <name>ymax</name>
-      </gpu:variable>
-      <gpu:variable>
-        <type>double</type>
-        <name>dt</name>
-      </gpu:variable>
-      <gpu:variable>
-        <type>double</type>
-        <name>DXL</name>
+        <name>max_depth</name> <!--To store the maximum the depth of water in whole the domain in entire simulation-->
       </gpu:variable>
       
       <gpu:variable>
-        <type>double</type>
-        <name>DYL</name>
-        <!--relevant to pedestrian model-->
-       </gpu:variable>
+        <type>int</type>
+        <name>count_population</name> <!--to count the total number of pedestrians in the domain in each iteration-->
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>count_heros</name><!--to count the total number of pedestrians in the domain in each iteration--> 
+      </gpu:variable>
       
       <gpu:variable>
+        <type>int</type>
+        <name>pedestrians_population</name> <!--the number of pedestrian that is required to be in the area-->
+      </gpu:variable>     
+       <gpu:variable>
+        <type>float</type>
+        <name>hero_percentage</name> <!--shows how many heros exist within the population (in percentage)-->
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>hero_population</name> <!-- to calculate how many heros is expected to be in the area-->
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>sandbagging_on</name><!-- to turn on and turn of sandbagging action manually-->
+      </gpu:variable>
+
+      <gpu:variable>
+        <type>double</type>
+        <name>sandbagging_start_time</name><!-- to define the time when heros start sandbagging-->
+      </gpu:variable>
+
+      <gpu:variable>
+        <type>double</type>
+        <name>sandbagging_end_time</name><!-- to define the time when heros end sandbagging-->
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>float</type>
+        <name>sandbag_length</name><!-- dimension of each sandbag-->
+      </gpu:variable>
+       <gpu:variable>
+        <type>float</type>
+        <name>sandbag_height</name><!-- dimension of each sandbag-->
+      </gpu:variable>
+         <gpu:variable>
+        <type>float</type>
+        <name>sandbag_width</name><!-- dimension of each sandbag-->
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>float</type>
+        <name>extended_length</name><!-- the length of extended sandbags put in drop point-->
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>sandbag_layers</name><!-- the length of extended sandbags put in drop point-->
+       <defaultValue>1</defaultValue>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>update_stopper</name><!-- the length of extended sandbags put in drop point-->
+      </gpu:variable>
+      
+      
+      <gpu:variable>
+        <type>float</type>
+        <name>dike_length</name><!-- dimension of sandbag dike-->
+      </gpu:variable>
+       <gpu:variable>
+        <type>float</type>
+        <name>dike_height</name><!-- dimension of sandbag dike-->
+      </gpu:variable>
+         <gpu:variable>
+        <type>float</type>
+        <name>dike_width</name><!-- dimension of sandbag dike-->
+      </gpu:variable>
+      
+       <gpu:variable>
+        <type>int</type>
+        <name>fill_cap</name><!-- is initialised based on the dimension of each navmap cell (dependant on resolution) and sandbags to define how many sandbag is required to fill one cell-->
+      </gpu:variable>
+      
+      
+      
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>pickup_point</name> <!-- defines the goal point for pedestrian to pick up sandbags-->
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>drop_point</name> <!-- defines the goal point for pedestrian to drop the sandbags-->
+      </gpu:variable>
+      <gpu:variable>
+        <type>float</type>
+        <name>pickup_duration</name> <!-- Defines how much time is needed for a pedestrian to pick up a sandbag from pickup point-->
+      </gpu:variable>
+      <gpu:variable>
+        <type>float</type>
+        <name>drop_duration</name><!-- Defines how much time is needed for a pedestrian to drop a sandbag in drop point-->      
+      </gpu:variable>
+
+        <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT1</name>
       </gpu:variable>
@@ -67,6 +315,18 @@
       <gpu:variable>
         <type>float</type>
         <name>EMMISION_RATE_EXIT7</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>float</type>
+        <name>EMMISION_RATE_EXIT8</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>float</type>
+        <name>EMMISION_RATE_EXIT9</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>float</type>
+        <name>EMMISION_RATE_EXIT10</name>
       </gpu:variable>
       
       <gpu:variable>
@@ -106,6 +366,21 @@
       
       <gpu:variable>
         <type>int</type>
+        <name>EXIT8_PROBABILITY</name>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT9_PROBABILITY</name>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT10_PROBABILITY</name>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
         <name>EXIT1_STATE</name>
       </gpu:variable>
       
@@ -137,6 +412,18 @@
       <gpu:variable>
         <type>int</type>
         <name>EXIT7_STATE</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT8_STATE</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT9_STATE</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT10_STATE</name>
       </gpu:variable>
       
       <gpu:variable>
@@ -172,6 +459,21 @@
       <gpu:variable>
         <type>int</type>
         <name>EXIT7_CELL_COUNT</name>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT8_CELL_COUNT</name>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT9_CELL_COUNT</name>
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>EXIT10_CELL_COUNT</name>
       </gpu:variable>
       
       <gpu:variable>
@@ -396,7 +698,23 @@
         <gpu:reallocate>false</gpu:reallocate>
         <gpu:RNG>false</gpu:RNG>
       </gpu:function>
-    </functions>
+    
+      <gpu:function>
+        <name>UpdateFloodTopo</name>
+        <currentState>Default</currentState>
+        <nextState>Default</nextState>
+        <inputs>
+          <gpu:input>
+            <messageName>NavmapData</messageName>
+          </gpu:input>
+        </inputs>
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+    
+      </functions>
+        
+      
     <states>
       <gpu:state>
         <name>Default</name>
@@ -404,7 +722,7 @@
       <initialState>Default</initialState>
     </states>
     <gpu:type>discrete</gpu:type>
-    <gpu:bufferSize>4096</gpu:bufferSize>
+    <gpu:bufferSize>16384</gpu:bufferSize>
   </gpu:xagent>
   
   
@@ -461,7 +779,30 @@
           <type>int</type>
           <name>animate_dir</name>
         </gpu:variable>
+        <gpu:variable>
+          <type>int</type>
+          <name>state</name> <!-- will be updated within the simulations -->
+        </gpu:variable>
+      <gpu:variable>
+          <type>int</type>
+          <name>hero_status</name> <!-- will show whether the pedestrian is hero '1' or not '0' -->
+        </gpu:variable>
+       <gpu:variable>
+          <type>double</type>
+          <name>pickup_time</name> <!-- this variable captures the time that the hero pedestrian is reached to pickup destination-->
+        </gpu:variable>
+      <gpu:variable>
+          <type>double</type>
+          <name>drop_time</name> <!-- this variable captures the time the hero pedestrian is reached to dropping destination -->
+        </gpu:variable>
+        
+      <gpu:variable>
+          <type>int</type>
+          <name>carry_sandbag</name> <!-- this variable shows whether the hero agent is carrying a sandbag or not -->
+        </gpu:variable>
+      
       </memory>
+      
       
       <functions>
         
@@ -472,6 +813,20 @@
           <outputs>
             <gpu:output>
               <messageName>pedestrian_location</messageName>
+              <gpu:type>single_message</gpu:type>
+            </gpu:output>
+          </outputs>
+          <gpu:reallocate>false</gpu:reallocate>
+          <gpu:RNG>false</gpu:RNG>
+        </gpu:function>
+        
+        <gpu:function>
+          <name>output_PedData</name>
+          <currentState>default</currentState>
+          <nextState>default</nextState>
+          <outputs>
+            <gpu:output>
+              <messageName>PedData</messageName>
               <gpu:type>single_message</gpu:type>
             </gpu:output>
           </outputs>
@@ -525,10 +880,11 @@
         <initialState>default</initialState>
       </states>
       <gpu:type>continuous</gpu:type>
-      <gpu:bufferSize>4096</gpu:bufferSize>
+      <gpu:bufferSize>16384</gpu:bufferSize>
       
     </gpu:xagent>
     
+    <!--navigation agents-->
     <gpu:xagent>
       <name>navmap</name>
       <memory>
@@ -625,10 +981,53 @@
           <type>float</type>
           <name>exit6_x</name>
         </gpu:variable>
+        
         <gpu:variable>
           <type>float</type>
           <name>exit6_y</name>
         </gpu:variable>
+        
+        <gpu:variable>
+        <type>float</type>
+        <name>exit7_x</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>float</type>
+          <name>exit7_y</name>
+        </gpu:variable>
+
+        <gpu:variable>
+        <type>float</type>
+        <name>exit8_x</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>float</type>
+          <name>exit8_y</name>
+        </gpu:variable>
+
+        <gpu:variable>
+        <type>float</type>
+        <name>exit9_x</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>float</type>
+          <name>exit9_y</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>int</type>
+          <name>drop_point</name>
+        </gpu:variable>
+        
+      <gpu:variable>
+          <type>int</type>
+          <name>sandbag_capacity</name>
+        </gpu:variable>
+        
+      
       </memory>
      
       <functions>
@@ -674,6 +1073,46 @@
         <gpu:RNG>false</gpu:RNG>
       </gpu:function>
         
+      <gpu:function>
+        <name>updateNavmapData</name>
+        <description>Updates the topography features based on pedestrians' location</description>
+        <currentState>static</currentState>
+        <nextState>static</nextState>
+        <inputs>
+          <gpu:input>
+            <messageName>PedData</messageName>
+          </gpu:input>
+        </inputs>
+        <outputs>
+            <gpu:output>
+              <messageName>updatedNavmapData</messageName>
+             <gpu:type>single_message</gpu:type>
+            </gpu:output>
+          </outputs>   
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+        
+       <gpu:function>
+        <name>updateNeighbourNavmap</name>
+        <description>Updates neighbours with new topography features</description>
+        <currentState>static</currentState>
+        <nextState>static</nextState>
+        <inputs>
+          <gpu:input>
+            <messageName>updatedNavmapData</messageName>
+          </gpu:input>
+        </inputs>  
+         <outputs>
+            <gpu:output>
+              <messageName>NavmapData</messageName>
+              <gpu:type>single_message</gpu:type>
+            </gpu:output>
+          </outputs>  
+        <gpu:reallocate>false</gpu:reallocate>
+        <gpu:RNG>false</gpu:RNG>
+      </gpu:function>
+       
      </functions>
       
       <states>
@@ -683,7 +1122,7 @@
         <initialState>static</initialState>
       </states>
       <gpu:type>discrete</gpu:type>
-      <gpu:bufferSize>4096</gpu:bufferSize>
+      <gpu:bufferSize>16384</gpu:bufferSize>
     </gpu:xagent>
   </xagents>
   
@@ -713,7 +1152,7 @@
         <gpu:partitioningDiscrete>
           <gpu:radius>1</gpu:radius>
         </gpu:partitioningDiscrete>
-        <gpu:bufferSize>4096</gpu:bufferSize>
+        <gpu:bufferSize>16384</gpu:bufferSize>
       </gpu:message>
 
       <!--Flood model message 2-->
@@ -804,7 +1243,7 @@
         <gpu:partitioningDiscrete>
           <gpu:radius>1</gpu:radius>
         </gpu:partitioningDiscrete>
-        <gpu:bufferSize>4096</gpu:bufferSize>
+        <gpu:bufferSize>16384</gpu:bufferSize>
       </gpu:message>
       
       <!--Message to retain the info of flood agents -->
@@ -843,7 +1282,7 @@
         <gpu:partitioningDiscrete>
           <gpu:radius>0</gpu:radius>
         </gpu:partitioningDiscrete>
-        <gpu:bufferSize>4096</gpu:bufferSize>
+        <gpu:bufferSize>16384</gpu:bufferSize>
       </gpu:message>
 
     <!--Pedestian model message 1-->
@@ -872,9 +1311,128 @@
         <gpu:zmin>0.0</gpu:zmin>
         <gpu:zmax>0.025</gpu:zmax>
       </gpu:partitioningSpatial>
-      <gpu:bufferSize>4096</gpu:bufferSize>
+      <gpu:bufferSize>16384</gpu:bufferSize>
     </gpu:message>
+      
+      <gpu:message>
+      <name>PedData</name>
+      <variables>
+        
+        <gpu:variable>
+          <type>float</type> <!--grid location is being broadcasted, thus integer-->
+          <name>x</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>float</type>
+          <name>y</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>float</type>
+          <name>z</name>
+        </gpu:variable>
+      <gpu:variable>
+          <type>int</type>
+          <name>hero_status</name>
+        </gpu:variable>
+         <gpu:variable>
+          <type>int</type>
+          <name>pickup_time</name>
+        </gpu:variable>
+      <gpu:variable>
+          <type>int</type>
+          <name>drop_time</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>int</type>
+          <name>exit_no</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>int</type>
+          <name>carry_sandbag</name>
+        </gpu:variable>
+  
+      </variables>
+      <gpu:partitioningSpatial>
+        <gpu:radius>0.005</gpu:radius>
+        <gpu:xmin>-1.0</gpu:xmin>
+        <gpu:xmax>1.0</gpu:xmax>
+        <gpu:ymin>-1.0</gpu:ymin>
+        <gpu:ymax>1.0</gpu:ymax>
+        <gpu:zmin>0.0</gpu:zmin>
+        <gpu:zmax>0.005</gpu:zmax>
+      </gpu:partitioningSpatial>
+      <gpu:bufferSize>16384</gpu:bufferSize>
+    </gpu:message>
+     <!-- Contains the information of updated navmapcell  to be broadcasted to floodcell agents --> 
     <gpu:message>
+      <name>updatedNavmapData</name>
+      <variables>
+        <gpu:variable>
+          <type>int</type>
+          <name>x</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>int</type>
+          <name>y</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>z0</name>
+        </gpu:variable>
+      <gpu:variable>
+          <type>int</type>
+          <name>drop_point</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>int</type>
+          <name>sandbag_capacity</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>int</type>
+          <name>exit_no</name>
+        </gpu:variable>
+
+        
+      </variables>
+      
+      <gpu:partitioningDiscrete>
+        <gpu:radius>1</gpu:radius>
+      </gpu:partitioningDiscrete>
+      <gpu:bufferSize>16384</gpu:bufferSize>
+    </gpu:message>
+      
+      <gpu:message>
+      <name>NavmapData</name>
+      <variables>
+        <gpu:variable>
+          <type>int</type>
+          <name>x</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>int</type>
+          <name>y</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>z0</name>
+        </gpu:variable>
+      
+        <!--<gpu:variable>
+          <type>int</type>
+          <name>ped_cap</name>
+        </gpu:variable>-->
+      
+        
+      </variables>
+      <gpu:partitioningDiscrete>
+        <gpu:radius>0</gpu:radius> <!--loads also neighbours-->
+      </gpu:partitioningDiscrete>
+      <gpu:bufferSize>16384</gpu:bufferSize>
+    </gpu:message>
+    
+  <gpu:message>
       <name>navmap_cell</name>
       <variables>
         <gpu:variable>
@@ -884,6 +1442,22 @@
         <gpu:variable>
           <type>int</type>
           <name>y</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>z0</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>h</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>qx</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>qy</name>
         </gpu:variable>
         <gpu:variable>
           <type>int</type>
@@ -957,11 +1531,40 @@
           <type>float</type>
           <name>exit6_y</name>
         </gpu:variable>
+
+        <gpu:variable>
+          <type>float</type>
+          <name>exit7_x</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>float</type>
+          <name>exit7_y</name>
+        </gpu:variable>
+
+        <gpu:variable>
+          <type>float</type>
+          <name>exit8_x</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>float</type>
+          <name>exit8_y</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>float</type>
+          <name>exit9_x</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>float</type>
+          <name>exit9_y</name>
+        </gpu:variable>
+        
+        
       </variables>
       <gpu:partitioningDiscrete>
         <gpu:radius>0</gpu:radius>
       </gpu:partitioningDiscrete>
-      <gpu:bufferSize>4096</gpu:bufferSize>
+      <gpu:bufferSize>16384</gpu:bufferSize>
     </gpu:message>
   </messages>
   
@@ -1042,6 +1645,42 @@
         <name>move</name>
       </gpu:layerFunction>
     </layer>
+    
+    <!--layer 10-->
+    <layer>
+      <gpu:layerFunction>
+        <name>output_PedData</name>
+      </gpu:layerFunction>
+    </layer>
+    
+     <!--layer 11-->
+    <layer>
+      <gpu:layerFunction>
+        <name>updateNavmapData</name>
+      </gpu:layerFunction>
+    </layer>
+    
+     <!--layer 12-->
+    <layer>
+      <gpu:layerFunction>
+        <name>updateNeighbourNavmap</name>
+      </gpu:layerFunction>
+    </layer>
+    
+    <!--layer 13-->
+    <layer>
+      <gpu:layerFunction>
+        <name>outputNavmapData</name>
+      </gpu:layerFunction>
+    </layer>
+    
+    <!--layer 14-->
+    <layer>
+      <gpu:layerFunction>
+        <name>UpdateFloodTopo</name>
+      </gpu:layerFunction>
+    </layer>
+    
     
     
   </layers>
