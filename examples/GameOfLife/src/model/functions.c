@@ -45,6 +45,7 @@ __FLAME_GPU_FUNC__ int output_state(xmachine_memory_cell* xmemory, xmachine_mess
 __FLAME_GPU_FUNC__ int update_state(xmachine_memory_cell* xmemory, xmachine_message_state_list* state_messages) 
 {
 	int state = xmemory->state;
+	
 	int living_neighbours = 0;
 
 	//itterate messages
