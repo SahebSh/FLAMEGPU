@@ -1,4 +1,4 @@
-# FLAME GPU Example: Pedestrian Flood Navigation
+## FLAME GPU Example: FloodPedestrian Model
 
 A model which combines the flood model (see separate flood model example) with the FLAMGPU pedestrian navigation example.
 
@@ -20,9 +20,9 @@ in brief:
 7. The speed of the simulation of pedestrian movement can be modified (e.g. can be increased where they are putting sandbags to accelerate the simulation time)
 8. The location of inflow boundary in modifiable to any plece at boundaries
 
-## PLEASE NOTE **** Capabilities of current model will be explained in details in a separate file along with comprehensive instructions ****
+# PLEASE NOTE **** Capabilities of current model will be explained in details in a separate file along with comprehensive instructions ****
 
-## Videos of some simulations can be found here: https://www.youtube.com/channel/UCAeXqodwipy2nXl30RFWk5Q 
+# Videos of some simulations can be found here: https://www.youtube.com/channel/UCAeXqodwipy2nXl30RFWk5Q 
 
 
 An example input file which follows the above instructions is provided in iterations\map.xml
@@ -32,7 +32,7 @@ CURRENT EXAMPLE: flooding event in a hypothetical shopping centre
 To change the initial data of water flow (e.g. severity) and pedestrian (e.g. population size), simply open interations/map.xml and change constant variables. 
 
 To change initial condition of pedestrian model and flood please follow the instruction (generating other examples and change topography features):  
-# Generating initial state files
+## Generating initial state files
 TODO: 
 1. Generate initial condition for pedestrian model on windows, To do: 
 1.1 Open 'PlanEditor.sln' file located in 'FGPUGridNavPlanEditor' within MS Visual Studio (2015 +)
