@@ -5,6 +5,10 @@
     <gpu:constants>
       <gpu:variable>
             <type>double</type>
+            <name>outputting_time</name>
+          </gpu:variable>
+      <gpu:variable>
+            <type>double</type>
             <name>xmin</name>
           </gpu:variable>
           <gpu:variable>

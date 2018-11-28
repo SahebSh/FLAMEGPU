@@ -606,6 +606,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 
 	int fill_cap = *get_fill_cap();
 	double dxl = *get_DXL();
+	double dyl = *get_DYL(); // used in outputting commands
 	float extended_length = *get_extended_length();
 	// the number of sandbags put in each layer
 	int max_sandbags = max_navmap_static_sandbag_capacity_variable();
@@ -666,7 +667,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 		set_sandbagging_on(&stop_off);
 	}
 
-	
+	// loading variables on host
 	double HR_max		= *get_HR();
 	int max_dead		= *get_max_dead();
 	int max_alive_wet	= *get_max_alive_wet();
@@ -691,6 +692,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	if (flow_velocity_max > max_velocity)
 		set_max_velocity(&flow_velocity_max);
 	
+	///////////////////////////////////////////////GENERAL OUTPUT IN COMMAND WINDOWS , uncomment any required /////////////////////////////////////////////////////////////////
 
 	//printing the simulation time
 	float peak_time = *get_DISCHARGE_PEAK_TIME();
@@ -745,7 +747,125 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	printf("\n number of applied layers so far =%d \n", layers_applied);
 	printf("\n extended length of sandbags is  =%.3f \n", extended_length);
 
-	//printf("\n the number of put sandbag layers is =  %d \n", sandbag_layers);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	////printf("\n the number of put sandbag layers is =  %d \n", sandbag_layers);
+	///////////////////////////////////////// Printing the info of flood and pedestrian numbers to a file ///////////////////////////////
+	// Outputting the information to an appendable file which is updated in each iteration by adding data to the end of document
+	//FILE * fp = fopen("iterations/output.txt", "a");
+	//
+	//if (fp == NULL)
+	//{
+	//	printf("Error opening file!\n");
+	//	exit(1);
+	//}
+
+	//fprintf(fp, "%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%.3f\t\t%.3f\t\t%.3f\t\t\n", new_sim_time, no_pedestrians, count_alive_dry, count_alive_run, max_alive_walk, count_alive_still,count_dead,HR, flow_h_max, flow_velocity_max);
+
+	//fclose(fp);
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		
+	///////////////////////////////////// OUTPUTTING FOR PROFILES ///////////////////////////////////////////////////
+		//// for printing outputs in each iteration, it defines the name of each outputed file the same as simulation time e.g. 32.000.txt, which
+		////	includes the outputted data at simulation time = 32 sec
+	// Define when to output the data
+	double outputting_time = *get_outputting_time();
+
+	if (new_sim_time >= outputting_time)
+	{
+		//	// Get some values and construct an output path.
+		const char * directory = getOutputDir();
+		unsigned int iteration = getIterationNumber();
+
+
+		////	std::string outputFilename = std::string(std::string(directory) + "custom-output-" + std::to_string(iteration) + ".csv");
+		std::string outputFilename = std::string(std::string(directory) + std::to_string(new_sim_time) + ".csv");
+
+		FILE * fp2 = fopen(outputFilename.c_str(), "w");
+
+		if (fp2 != nullptr)
+		{
+
+			// Output a header row for the CSV (flood analysis)
+			 fprintf(fp2, "x\t\ty\t\tDepth\t\t\tVelocity\n");
+
+			 ///////Uncomment if //////////// OUTPUTTING FLOOD DATA FOR SPATIO-TEMPORAL ANALYSIS (producing profile of water velocity and depth sliced in the middle of the domain in a given sim time 'outputting_time' ) /////////////////////
+			for (int index = 0; index < no_FloodCells; index++)
+			{
+				// Loading water flow info from navmap cells
+				double flow_h = get_FloodCell_Default_variable_h(index);
+				
+				int x = get_FloodCell_Default_variable_x(index);
+				int y = get_FloodCell_Default_variable_y(index);
+
+				double flow_discharge_x = get_FloodCell_Default_variable_qx(index);
+				double flow_discharge_y = get_FloodCell_Default_variable_qy(index);
+
+				
+				//calculating the velocity of water
+				double flow_velocity_x, flow_velocity_y;
+
+				if (flow_h != 0 )
+				{
+					 flow_velocity_x = flow_discharge_x / flow_h;
+					 flow_velocity_y = flow_discharge_y / flow_h;
+				}
+				else
+				{
+					flow_velocity_x = 0;
+					flow_velocity_y = 0;
+				}
+
+				double flow_veloxity_xy = max(flow_velocity_x, flow_velocity_y);   // taking maximum discharge between both x and y direction
+
+				// take the middle agents in y direction
+				int middle_pos = sqrt(no_FloodCells) / 2;
+
+				if ( x == middle_pos )
+				{
+					fprintf(fp2, "%.3f\t\t%.3f\t\t%f\t\t%f\n", x*dxl, y*dyl, flow_h, flow_veloxity_xy);
+				}
+			}
+				/////////////////////////////////////////////////////////////////////////
+				
+				
+				//////////////////////////////// Outputting the location of dead/trapped pedestrian /////////////////////////////////////////
+			//for (int index = 0; index < no_pedestrians; index++)
+			//	{
+			//		int pedestrians_state = get_agent_default_variable_state(index);
+			//		float x = get_agent_default_variable_x(index);
+			//		float y = get_agent_default_variable_y(index);
+			//		double xmax = *get_xmax();
+			//		double ymax = *get_ymax();
+
+			//		// counting the number of pedestrians with different states
+			//		if (pedestrians_state == STATE_DEAD || pedestrians_state == STATE_ALIVE_STILL)
+			//		{
+			//			// Output a header row for the CSV (pedestrian state analysis)
+			//			//fprintf(fp2, "x\t\ty\t\tstate\n");
+			//			// print the global position of pedestians
+			//			fprintf(fp2, "%.3f\t\t%.3f\t\t%d\n", (x-1)*(0.5*xmax) + xmax, (y - 1)*(0.5*ymax) + ymax, pedestrians_state);
+			//		}
+
+			//	}
+			///////////////////////////////////////////////////////////////////////
+
+
+			//fprintf(fp2, "%f\t\t%f\n", flow_h_max, flow_velocity_max);		
+		}
+		else
+		{
+			fprintf(stderr, "Error: file %s could not be created for customOutputStepFunction\n", outputFilename.c_str());
+		}
+
+		if (fp2 != nullptr && fp2 != stdout && fp2 != stderr) {
+			fclose(fp2);
+			fp2 = nullptr;
+		}
+	}
+
+
 }
 
 
@@ -2896,6 +3016,13 @@ __FLAME_GPU_FUNC__ int updateNavmapData(xmachine_memory_navmap* agent, xmachine_
 
 	// This function calculates the global position of each navmap based on the size of flood domain 
 	//float2 navmap_loc_global = FindGlobalPosition_navmap(agent, make_double2(0.0, 0.0));
+
+	////for outputting the location of drop point
+	//if (agent->exit_no == drop_point)
+	//{
+	//	printf(" the location of drop point x=%f and y=%f \n ", navmap_loc_global.x, navmap_loc_global.y);
+	//}
+
 	
 	//Loading a single message
 	xmachine_message_PedData* msg = get_first_PedData_message(PedData_messages, partition_matrix, (float)navmap_loc.x, (float)navmap_loc.y, 0.0);
