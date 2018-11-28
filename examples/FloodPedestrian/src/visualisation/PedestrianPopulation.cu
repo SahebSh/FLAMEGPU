@@ -67,7 +67,8 @@ __global__ void output_pedestrians_to_TBO(xmachine_memory_agent_list* agents, gl
 	data2[index].x = agents->velx[index];
 	data2[index].y = agents->vely[index];
 	data2[index].z = (float)agents->exit_no[index];
-	data2[index].w = 0.0;
+	//data2[index].w = 0.0;
+	data2[index].w = (float)agents->state[index]; // Added by MS28112018
 }
 
 

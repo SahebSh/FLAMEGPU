@@ -58,10 +58,10 @@ extern void generate_instances(cudaGraphicsResource_t * instances_cgr);
 
 // flood model specific ranges
 #define Z0_MIN 0.0f
-#define Z0_MAX 4.0f
+#define Z0_MAX 4.0f //
 
 #define H_MIN 0.0f
-#define H_MAX 0.3f
+#define H_MAX 0.08f
 
 //Circle model fidelity
 const int SPHERE_SLICES = 8;
@@ -82,10 +82,10 @@ static const char floodmap_vshader_source[] =
 	"{																			\n"
 	"	vec4 position = gl_Vertex;											    \n"
 	"	vec4 lookup = texelFetchBuffer(displacementMap, (int)mapIndex);		    \n"
-	"	if (water)	                											\n"
+	"	//if (water)	               											\n"
 	"		gl_FrontColor = vec4(1.0f-lookup.w, 1.0f-lookup.w, 1.0f, 0.0);		\n"
-	"	else	                												\n"
-	"		gl_FrontColor = vec4(lookup.z, lookup.z, lookup.z, 0.0);			\n"
+	"	//else	                												\n"
+	"		gl_FrontColor += vec4(lookup.z, lookup.z, lookup.z, 0.0);			\n"
 	"	lookup.w = 1.0;												    		\n"
 
 	"   //offset model position													\n"

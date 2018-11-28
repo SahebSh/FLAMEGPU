@@ -42,8 +42,8 @@ extern void generate_pedestrian_instances(GLuint* instances_data1_tbo, GLuint* i
 extern int getPedestrianCount();
 
 /** Vertex Shader source for rendering animated (keyframed x2) directional pedestrians */
-static const char pedestrian_vshader_source[] = 
-{  
+static const char pedestrian_vshader_source[] =
+{
 	"#version 120																	\n"
 	"#extension EXT_gpu_shader4 : require   										\n"
 	"uniform samplerBuffer data1_map;												\n"
@@ -52,7 +52,7 @@ static const char pedestrian_vshader_source[] =
 	"attribute in float instance_index;												\n"
 	"attribute in vec3 normal_l, position_r, normal_r;								\n"
 	"void main()																	\n"
-    "{																				\n"
+	"{																				\n"
 	"   int index = int(instance_index);											\n"
 	"	vec4 data1 = texelFetchBuffer(data1_map, index);							\n"
 	"	vec4 data2 = texelFetchBuffer(data2_map, index);							\n"
@@ -83,10 +83,13 @@ static const char pedestrian_vshader_source[] =
 
 	"	//color																		\n"
 	"   int exit = int(data2.z);													\n"
-	"	if (exit == active_exit)																\n"
-	"		gl_FrontColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);							\n"	
+	"	float state = data2.w/5.0;	//5.0 is the range of state values from 0 to 4	\n"
+	"	if (exit == active_exit)													\n"
+	"		// gl_FrontColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);						\n"	
+	"		gl_FrontColor = vec4(state, 0.0f, 1.0f, 1.0f);							\n"
 	"	else																		\n"
-	"		gl_FrontColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);							\n"	
+	"		//gl_FrontColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);							\n"	
+	"		  gl_FrontColor = vec4(state, 0.0f, 0.0f, 1.0f);						\n"
 
 	"   //apply model view proj														\n"
 	"   gl_Position = gl_ModelViewProjectionMatrix * vec4(position, 1);				\n"
