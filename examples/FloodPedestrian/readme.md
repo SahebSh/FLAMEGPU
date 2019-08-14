@@ -5,8 +5,8 @@ A model which combines the flood model (see separate flood model example) with t
 CURRENT MODEL (update 29OCT2018)
 in brief:
 1. The model can simulate evacuation procedure (which is optional):
-	1-1 by enabling the pedestrian hearing an emergency alarm (for early evacuation planning)
-	1-2 or observing the upcoming water flow towards the area
+	1.1. by enabling the pedestrian hearing an emergency alarm (for early evacuation planning)
+	1.2. or observing the upcoming water flow towards the area
 2- The model can simualte different types of floods (based on Environment Agency's guidance document)
 3- The state of pedestrians can be changed with respect to the characteristics of water flow, e.g. if a pedestrian get stuck in water or is considered as casualties
 	3-1 dead or got stuck pedestrians cannot move anymore, assuming stuck ones are waiting for help
