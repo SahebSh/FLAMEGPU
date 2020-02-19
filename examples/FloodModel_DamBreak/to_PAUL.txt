@@ -1,0 +1,47 @@
+* This text file explaines very briefly the contents, steps to be taken in the simulation of the flood model on FLAME-GPU, 
+   and the required information for visualisation.
+
+///////////////////////////////////////////////////////////////////////
+About the contents: 
+
+- The flood model has been added as an example named 'FloodModel' in the examples folder. 
+
+- Iterations folder contains the initial condition and the results of the conducted 
+academic test cases which has been used to validate the resutls obtained from the simulations on FLAME-GPU.
+these results are stored within the separate folders. 
+
+- 0.xml contains the initial condition of one of the test cases that has topographic features 
+(suitable for preliminary visualisation)
+
+- To convert xml files to text/csv files Python codes are used each of which outputs a particular variable
+  they are located in iterations folder as well.  
+
+- Within iteration folder, a text file called 'Reminder' is a guide to start over a simulation. (for me) 
+
+- Within the FloodModel folder 'XML_inpGen' contains a c-based source code to generate initial condition 
+of the test cases.
+
+///////////////////////////////////////////////////////////////////////
+Steps in running the model: 
+
+1- Generating initial condition (problem-dependent): .\FloodModel\XML_inpGen\XML_inpGen\Using xmlGen.c
+
+2- setting FloodModel Property Pages > Configuration Properties > Debugging/ set Command Argument to read initial condition and required simulation iterations
+	 e.g. .\iterations\0.xml XXX ;'XXX' is the number of desirable iterations
+
+3- Setting the buffer sizes of messages and agents in XMLModelFile.xml based on the defined domain size (in initial condition generator)
+
+4- Specifying the constant variables within functions.c depending on the problem specification
+
+///////////////////////////////////////////////////////////////////////
+* To Paul: the initial condition and the above configuration has been set and the model runs on this specification in a similar way to other models
+
+** The variables associated with each agent which we need to visualise are: 
+
+(1)	 z0 : representing the bed level (topography level)
+
+(2)	 h + z0: Water surface elevation which can be obtained from adding h (water depth) to the bed level (z0)
+
+* Note 2: it would be great if we can visualise qx and qy as well as an alternative option.
+
+

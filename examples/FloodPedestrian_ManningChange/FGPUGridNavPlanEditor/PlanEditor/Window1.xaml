@@ -1,0 +1,65 @@
+﻿<Window x:Class="PlanEditor.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:PlanEditor"
+    
+    Title="Floor Plan Editor" Height="669" Width="880" Closed="Window_Closed">
+   
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Name="windowGrid" Keyboard.KeyUp="windowGrid_KeyUp" Keyboard.KeyDown="windowGrid_KeyDown">
+        <Menu Name="menuBar" Height="28" VerticalAlignment="Top">
+            <MenuItem Header="File" >
+                <MenuItem Name="newDataMenu" Header="New file" Click="newDataMenu_Click" />
+                <MenuItem Name="loadDataMenu" Header="Load file"  Click="loadDataMenu_Click"/>
+                <MenuItem Name="saveDataMenu" Header="Save file" Click="saveDataMenu_Click" />
+                <Separator></Separator>
+                <MenuItem Header="Load Image" />
+                <Separator></Separator>
+                <MenuItem Header="Exit"  Click="MenuShutdown"/>
+            </MenuItem>
+            <MenuItem Header="Edit">
+                <MenuItem Name="undoMenu" Header="Undo" Click="undoMenu_Click" />
+            </MenuItem>
+        </Menu>
+        
+        <ScrollViewer Name="editorScroll" Margin="0,29,123,0" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" BorderBrush="DarkMagenta" >
+
+            <Canvas  Focusable="True" Width="400px" Height="400px" Name="editorCanvas"   HorizontalAlignment="Left" VerticalAlignment="Top" ></Canvas>
+
+        </ScrollViewer>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,244,26,0" Name="zoomInBtn" VerticalAlignment="Top" Width="75" Click="zoomInBtn_Click">Zoom In</Button>
+        <Button HorizontalAlignment="Right" Margin="0,266,26,0" Name="zoomOutBtn" Width="75" Click="zoomOutBtn_Click" Height="23" VerticalAlignment="Top">Zoom Out</Button>
+        <Button HorizontalAlignment="Right" Margin="0,298,26,303" Name="loadImgBtn" Width="75" Click="loadImgBtn_Click">Load Image</Button>
+        <ToggleButton Height="23" HorizontalAlignment="Right" Margin="0,35,26,0"  Name="areaToolBtn" VerticalAlignment="Top" Width="75">Define Area</ToggleButton>
+        <ToggleButton Height="23" HorizontalAlignment="Right" Margin="0,90,26,0" Name="wallToolBtn" VerticalAlignment="Top" Width="75">Draw Walls</ToggleButton>
+        <ToggleButton Height="23" HorizontalAlignment="Right" Margin="0,123,26,0" Name="doorToolBtn" VerticalAlignment="Top" Width="75">Define Exits</ToggleButton>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,158,26,0" Name="shopBtn" VerticalAlignment="Top" Width="75" Click="shopBtn_Click">Shop Agent</Button>
+        <Button HorizontalAlignment="Right" Margin="0,0,26,279" Name="loadHmapBtn" Width="75" Click="loadHmapBtn_Click" Height="23" VerticalAlignment="Bottom">Load Hmap</Button>
+        
+        <GroupBox Header="Build Map" HorizontalAlignment="Right" Margin="0,0,13,65" Name="groupBox1" Width="104" Height="165" VerticalAlignment="Bottom">
+        
+            <StackPanel>
+                <Label HorizontalAlignment="Left"  Name="label1" VerticalAlignment="Top">Width (px)</Label>
+                <TextBox Name="buildWidthTxt" Width="85" HorizontalAlignment="Center"  VerticalAlignment="Top"  >
+                   
+                </TextBox>
+                   
+                <Label  HorizontalAlignment="Left"  Name="label2" VerticalAlignment="Top">Height (px)</Label>
+                 <TextBox Name="buildHeightTxt" Width="85" HorizontalAlignment="Center" >
+                  
+                </TextBox>
+                    
+            <Button HorizontalAlignment="Center" Margin="0,4,0,0"  Name="buildBtn" Width="84" Height="37" VerticalAlignment="Top" Click="buildBtn_Click">Build</Button>
+           
+          
+        </StackPanel>
+        </GroupBox>
+        <Button HorizontalAlignment="Right" Margin="0,0,26,252" Name="altRefBtn" Width="75" Click="altRefBtn_Click" Height="23" VerticalAlignment="Bottom">Alternate Reference</Button>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,60,26,0" Name="matchImageAreaBtn" VerticalAlignment="Top" Width="75" Click="matchImageAreaBtn_Click">MatchImage</Button>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,187,26,0" Name="drawCollisionAgentBtn" VerticalAlignment="Top" Width="75" Click="drawCollisionAgentBtn_Click"  >Col. Agent</Button>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,216,26.5,0" Name="obstacleBtn" VerticalAlignment="Top" Width="75" Click="obstacleBtn_Click">Obstacle</Button>
+        <PasswordBox HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+    </Grid>
+
+
+</Window>

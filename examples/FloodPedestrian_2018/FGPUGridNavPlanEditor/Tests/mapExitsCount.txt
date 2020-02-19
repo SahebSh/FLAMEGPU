@@ -1,0 +1,4 @@
+ExitId  Pixels count
+0 19
+1 13
+2 12

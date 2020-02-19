@@ -1,0 +1,11 @@
+<agent>
+  <name>environment</name>
+<x></x>
+<y></y>
+  <collision_x>0.0</collision_x>
+  <collision_y>0.0</collision_y>
+  <exit1_x>0.0</exit1_x>
+  <exit1_y>0.0</exit1_y>
+  <exit2_x>0.0</exit2_x>
+  <exit2_y>0.0</exit2_y>
+</agent>
