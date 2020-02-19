@@ -1,0 +1,28 @@
+The following constant variables are removed from the map.xml file and have embedded them in the init function in functions.c
+To bring them back to map.xml file, need to remove them from the init function and rebuild the project. 
+
+to copy:
+	<EXIT1_STATE>1</EXIT1_STATE>
+	<EXIT2_STATE>1</EXIT2_STATE>
+	<EXIT3_STATE>1</EXIT3_STATE>
+	<EXIT4_STATE>1</EXIT4_STATE>
+	<EXIT5_STATE>1</EXIT5_STATE>
+	<EXIT6_STATE>1</EXIT6_STATE>
+	<EXIT8_STATE>1</EXIT8_STATE>
+	<EXIT9_STATE>1</EXIT9_STATE>
+	<EXIT10_STATE>1</EXIT10_STATE>
+
+
+
+	<EXIT1_CELL_COUNT>20</EXIT1_CELL_COUNT>
+	<EXIT2_CELL_COUNT>20</EXIT2_CELL_COUNT>
+	<EXIT3_CELL_COUNT>20</EXIT3_CELL_COUNT>
+	<EXIT4_CELL_COUNT>20</EXIT4_CELL_COUNT>
+	<EXIT5_CELL_COUNT>20</EXIT5_CELL_COUNT>
+	<EXIT6_CELL_COUNT>20</EXIT6_CELL_COUNT>
+	<EXIT8_CELL_COUNT>20</EXIT8_CELL_COUNT>
+	<EXIT9_CELL_COUNT>20</EXIT9_CELL_COUNT>
+	<EXIT10_CELL_COUNT>20</EXIT10_CELL_COUNT>
+
+
+--------------------------------------------------
