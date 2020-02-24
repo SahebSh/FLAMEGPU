@@ -4,23 +4,22 @@ A model which combines the flood model (see separate flood model example) with t
 
 CURRENT MODEL (update 29OCT2018)
 in brief:
-/*:
-1. The model can simulate evacuation procedure (which is optional):
-	1. by enabling the pedestrian hearing an emergency alarm (for early evacuation planning)
-	2. or observing the upcoming water flow towards the area
-2. The model can simualte different types of floods (based on Environment Agency's guidance document)
-3. The state of pedestrians can be changed with respect to the characteristics of water flow, e.g. if a pedestrian get stuck in water or is considered as casualties
-	1. dead or got stuck pedestrians cannot move anymore, assuming stuck ones are waiting for help
-4. The pedestrians can put sandbags in front of water to block the water flow,
-	1. the sizes of sandbags and proposed dike can be defined in input file
-	2. the timing of sandbagging procedure is modifiable to optional values
-	3. the area of pick up point to grab sandbags can be change to any location which corresponds to any exit
-	4. drop point is only applicable to exit7 in the model (for the location of exit 7 see \iterations\init_ped_flood.jpg)
-5. The body of pedestrians can be considered as moving obstacles. This is optional for the user to choose.
-6. Time-step of flooding can be either choosed adaptive or static
-7. The speed of the simulation of pedestrian movement can be modified (e.g. can be increased where they are putting sandbags to accelerate the simulation time)
-8. The location of inflow boundary in modifiable to any plece at boundaries
-*/
+1- The model can simulate evacuation procedure (which is optional):
+	1-1 by enabling the pedestrian hearing an emergency alarm (for early evacuation planning)
+	1-2 or observing the upcoming water flow towards the area
+2- The model can simualte different types of floods (based on Environment Agency's guidance document)
+3- The state of pedestrians can be changed with respect to the characteristics of water flow, e.g. if a pedestrian get stuck in water or is considered as casualties
+	3-1 dead or got stuck pedestrians cannot move anymore, assuming stuck ones are waiting for help
+4- The pedestrians can put sandbags in front of water to block the water flow,
+	4-1 the sizes of sandbags and proposed dike can be defined in input file
+	4-2 the timing of sandbagging procedure is modifiable to optional values
+	4-3 the area of pick up point to grab sandbags can be change to any location which corresponds to any exit
+	4-4 drop point is only applicable to exit7 in the model (for the location of exit 7 see \iterations\init_ped_flood.jpg)
+5- * The body of pedestrians can be considered as moving obstacles. This is optional for the user to choose.
+6- Time-step of flooding can be either choosed adaptive or static
+7- The speed of the simulation of pedestrian movement can be modified (e.g. can be increased where they are putting sandbags to accelerate the simulation time)
+8- The location of inflow boundary in modifiable to any plece at boundaries
+
 PLEASE NOTE **** Capabilities of current model will be explained in details in a separate file along with comprehensive instructions ****
 
 Videos of some simulations can be found here: https://www.youtube.com/channel/UCAeXqodwipy2nXl30RFWk5Q 

@@ -1,0 +1,29 @@
+﻿<Window x:Class="PlanEditor.MapResultWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="MapResultWindow" Height="698" Width="905">
+    <Grid>
+        
+        <Grid Name="viewportGrid" Margin="0,0,198,0" Background="White" MouseMove="Grid_MouseMove" MouseWheel="Grid_MouseWheel" MouseDown="Grid_MouseDown" MouseUp="Grid_MouseUp">
+        <Viewport3D Name="viewport">
+            <Viewport3D.Camera>
+                <PerspectiveCamera x:Name="camera" FarPlaneDistance="20000" LookDirection="0,0,-10"
+					UpDirection="0,1,0" NearPlaneDistance="0" Position="0,0,20"
+					FieldOfView="45" />
+            </Viewport3D.Camera>
+            <ModelVisual3D x:Name="model">
+                <ModelVisual3D.Content>
+                    <Model3DGroup x:Name="group">
+                        <AmbientLight Color="White" />
+                        <DirectionalLight Color="White" Direction="-5,-5,-7" />
+                    </Model3DGroup>
+                </ModelVisual3D.Content>
+            </ModelVisual3D>
+        </Viewport3D>
+        </Grid>
+        <ComboBox Height="26" HorizontalAlignment="Right" Margin="0,38,15,0" Name="layershowCombo" VerticalAlignment="Top" Width="157" />
+        <Label Height="28" HorizontalAlignment="Right" Margin="0,9,52,0" Name="label1" VerticalAlignment="Top" Width="120">
+            View exit layer</Label>
+        <Button Height="23" HorizontalAlignment="Right" Margin="0,83,15,0" Name="exportBtn" VerticalAlignment="Top" Width="157" Click="exportBtn_Click">Export</Button>
+    </Grid>
+</Window>
