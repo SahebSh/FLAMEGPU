@@ -339,7 +339,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	double flow_velocity_max = DBL_MIN;
 	double flow_qxy_max = DBL_MIN;
 
-	int wet_counter; // a variable to count the number of floodcell agents with depth of water (for average estimation of the flow variables)
+	int wet_counter = 0; // a variable to count the number of floodcell agents with depth of water (for average estimation of the flow variables)
 	
 	double sum_depth = DBL_MIN;
 	//double ave_depth = DBL_MIN;
