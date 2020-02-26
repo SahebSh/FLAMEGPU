@@ -339,7 +339,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	double flow_velocity_max = DBL_MIN;
 	double flow_qxy_max = DBL_MIN;
 
-	int wet_counter; // a variable to count the number of floodcell agents with depth of water (for average estimation of the flow variables)
+	int wet_counter = 0; // a variable to count the number of floodcell agents with depth of water (for average estimation of the flow variables)
 	
 	double sum_depth = DBL_MIN;
 	//double ave_depth = DBL_MIN;
@@ -3105,19 +3105,31 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 
 	if (emer_alarm > NO_ALARM)
 	{
-		if (agent->HR_state == HR_1p5_2p5 || agent->HR_state == HR_0p75_1p5)
+		if (agent->HR_state == HR_0p0001_0p75)
 		{
-			// reduce pedestrians' speed by 30% in emergency situation , for the state: 3 and 4
-			agent_pos += 0.7f*(agent_vel*TIME_SCALER);
+	//		// increase pedestrians' speed by 30% in emergency situation, to about 1.8 m/s, simulating their rushing behaviour
+			agent_pos += 1.3f*(agent_vel*TIME_SCALER);
+		}
+		else if (agent->HR_state == HR_0p75_1p5)
+		{
+	//		// decrease pedestrians' speed by 35% in emergency situation, to about 0.9 m/s
+			agent_pos += 0.65f*(agent_vel*TIME_SCALER);
+		}
+
+		else if (agent->HR_state == HR_1p5_2p5)
+		{
+	//		// decrease pedestrians' speed by 67% in emergency situation, to decrease walking speed to about 0.45 m/s
+			agent_pos += 0.33f*(agent_vel*TIME_SCALER);
 		}
 		else
 		{
-			// increase pedestrians' speed by 30% in emergency situation , for the state: 3 and 4
-			agent_pos += 1.3f*(agent_vel*TIME_SCALER);
+			agent_pos += agent_vel*TIME_SCALER;
 		}
+
 	}
 	else
 	{
+		// if there is no in-water state for pedestrians
 		agent_pos += agent_vel*TIME_SCALER;
 	}
 
@@ -3125,19 +3137,39 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	//animation
 	if (emer_alarm > NO_ALARM)
 	{
-		if (agent->HR_state == HR_1p5_2p5 || agent->HR_state == HR_0p75_1p5)
+		if (agent->HR_state == HR_0p0001_0p75)
 		{
-			// reduce pedestrians' speed by 30% in emergency situation , for the state: 3 and 4
-			agent->animate += (agent->animate_dir * powf(0.7*speed, 2.0f)*TIME_SCALER*100.0f);
+	//		// increase pedestrians' speed by 30% in emergency situation, to about 1.8 m/s, simulating their rushing behaviour
+			agent->animate += (agent->animate_dir * powf(1.3*speed, 2.0f)*TIME_SCALER*100.0f);
 		}
+		else if (agent->HR_state == HR_0p75_1p5)
+		{
+	//		// decrease pedestrians' speed by 35% in emergency situation, to about 0.9 m/s
+			agent->animate += (agent->animate_dir * powf(0.65*speed, 2.0f)*TIME_SCALER*100.0f);
+		}
+		else if (agent->HR_state == HR_1p5_2p5)
+		{
+	//		// decrease pedestrians' speed by 67% in emergency situation, to decrease walking speed to about 0.45 m/s
+			agent->animate += (agent->animate_dir * powf(0.33*speed, 2.0f)*TIME_SCALER*100.0f);
+		}
+	//	//if (agent->HR_state == HR_1p5_2p5 || agent->HR_state == HR_0p75_1p5)
+	//	//{
+	//	//	// reduce pedestrians' speed by 30% in emergency situation , for the state: 3 and 4
+	//	//	agent->animate += (agent->animate_dir * powf(0.7*speed, 2.0f)*TIME_SCALER*100.0f);
+	//	//}
+	//	//else
+	//	//{
+	//	//	// increase pedestrians' speed by 30% in emergency situation , for the state: 3 and 4
+	//	//	agent->animate += (agent->animate_dir * powf(1.3*speed, 2.0f)*TIME_SCALER*100.0f);
+	//	//}
 		else
 		{
-			// increase pedestrians' speed by 30% in emergency situation , for the state: 3 and 4
-			agent->animate += (agent->animate_dir * powf(1.3*speed, 2.0f)*TIME_SCALER*100.0f);
+			agent->animate += (agent->animate_dir * powf(speed, 2.0f)*TIME_SCALER*100.0f);
 		}
 	}
 	else
 	{
+		// if there is no in-water state for pedestrians
 		agent->animate += (agent->animate_dir * powf(speed, 2.0f)*TIME_SCALER*100.0f);
 	}
 

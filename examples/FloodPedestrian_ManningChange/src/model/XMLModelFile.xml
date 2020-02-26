@@ -180,19 +180,19 @@
       </gpu:variable>     
       <gpu:variable>
         <type>int</type>
-        <name>max_dead</name><!--hazard rate to be updated in each iteration, taken as global variable to calculate the maximum HR in the simulation-->
+        <name>max_at_highest_risk</name><!--hazard rate to be updated in each iteration, taken as global variable to calculate the maximum HR in the simulation-->
       </gpu:variable>      
         <gpu:variable>
         <type>int</type>
-        <name>max_alive_wet</name><!--taken as global variable to calculate the maximum number of people could walk in wet area-->
+        <name>max_at_low_risk</name><!--taken as global variable to calculate the maximum number of people could walk in wet area-->
       </gpu:variable>
      <gpu:variable>
         <type>int</type>
-        <name>max_alive_walk</name><!--taken as global variable to calculate the maximum number of people who cannot run and in wet area-->
+        <name>max_at_medium_risk</name><!--taken as global variable to calculate the maximum number of people who cannot run and in wet area-->
       </gpu:variable>
        <gpu:variable>
         <type>int</type>
-        <name>max_alive_stuck</name><!--taken as global variable to calculate the maximum number of people who get stuck into water and cant move-->
+        <name>max_at_high_risk</name><!--taken as global variable to calculate the maximum number of people who get stuck into water and cant move-->
       </gpu:variable>
       <gpu:variable>
         <type>double</type>
@@ -811,7 +811,7 @@
         </gpu:variable>
         <gpu:variable>
           <type>int</type>
-          <name>state</name> <!-- will be updated within the simulations -->
+          <name>HR_state</name> <!-- will be updated within the simulations -->
         </gpu:variable>
       <gpu:variable>
           <type>int</type>
