@@ -1717,12 +1717,12 @@
       </gpu:layerFunction>
     </layer>
     
-    <!--layer 13-->
+    <!--layer 13--><!--
     <layer>
       <gpu:layerFunction>
         <name>outputNavmapData</name>
       </gpu:layerFunction>
-    </layer>
+    </layer>-->
     
     <!--layer 14-->
     <layer>
