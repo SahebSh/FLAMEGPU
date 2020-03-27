@@ -1,2 +1,0 @@
-See PedestrianPopulation.cpp in visualisation folder -> line 29 
-different values for variable PEDESTRIAN_MODEL_SCALE changes the visualised scale of pedestrians. 
