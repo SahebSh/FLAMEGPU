@@ -1,0 +1,2 @@
+This model is only designed for evacuation planning. need to do the modfications to integrate sadbagging in this model. 
+Or simply, work for Ver2018 (update 2020) 
