@@ -231,8 +231,14 @@
       
       <gpu:variable>
         <type>int</type>
-        <name>pedestrian_population</name> <!--the number of pedestrian that is required to be in the area-->
-      </gpu:variable>     
+        <name>initial_population</name> <!--the number of pedestrian that is required to be in the area-->
+      </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>evacuated_population</name> <!--the number of pedestrian that is required to be in the area-->
+      </gpu:variable> 
+        
        <gpu:variable>
         <type>float</type>
         <name>hero_percentage</name> <!--shows how many heros exist within the population (in percentage)-->
@@ -933,6 +939,11 @@
           <type>float</type>
           <name>motion_speed</name> <!-- based on toppling and sliding formulation proposed by Xia 2014 - it varies between 0 to 3 -->
         </gpu:variable>
+
+        <gpu:variable>
+          <type>int</type>
+          <name>at_exit_point</name>
+        </gpu:variable>
       
       </memory>
       
@@ -1158,6 +1169,11 @@
       <gpu:variable>
           <type>int</type>
           <name>sandbag_capacity</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>int</type>
+          <name>evac_counter</name> <!--to count the number of pedestrians passed through each defined exit-->
         </gpu:variable>
         
       
@@ -1484,18 +1500,23 @@
           <type>int</type>
           <name>carry_sandbag</name>
         </gpu:variable>
+
+        <gpu:variable>
+          <type>int</type>
+          <name>at_exit_point</name>
+        </gpu:variable>
   
       </variables>
       <gpu:partitioningSpatial>
-        <!--<gpu:radius>0.025</gpu:radius>--> <!--was used for body effect-->
-        <gpu:radius>0.025</gpu:radius>
+        <!--<gpu:radius>0.025</gpu:radius>--> <!--was used for body effect and the Hydroinformatic model - sandbagging in palce needs 0.025 - MS29042020-->
+        <gpu:radius>0.005</gpu:radius>
         <gpu:xmin>-1.0</gpu:xmin>
         <gpu:xmax>1.0</gpu:xmax>
         <gpu:ymin>-1.0</gpu:ymin>
         <gpu:ymax>1.0</gpu:ymax>
         <gpu:zmin>0.0</gpu:zmin>
         <!--<gpu:zmax>0.025</gpu:zmax>--> <!--was used for body effect-->
-        <gpu:zmax>0.025</gpu:zmax>
+        <gpu:zmax>0.005</gpu:zmax>
       </gpu:partitioningSpatial>
       <gpu:bufferSize>16384</gpu:bufferSize>
     </gpu:message>
