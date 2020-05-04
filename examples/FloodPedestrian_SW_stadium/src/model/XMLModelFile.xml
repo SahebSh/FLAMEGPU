@@ -939,11 +939,6 @@
           <type>float</type>
           <name>motion_speed</name> <!-- based on toppling and sliding formulation proposed by Xia 2014 - it varies between 0 to 3 -->
         </gpu:variable>
-
-        <gpu:variable>
-          <type>int</type>
-          <name>at_exit_point</name>
-        </gpu:variable>
       
       </memory>
       
@@ -1499,11 +1494,6 @@
         <gpu:variable>
           <type>int</type>
           <name>carry_sandbag</name>
-        </gpu:variable>
-
-        <gpu:variable>
-          <type>int</type>
-          <name>at_exit_point</name>
         </gpu:variable>
   
       </variables>

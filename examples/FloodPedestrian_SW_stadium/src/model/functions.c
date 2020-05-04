@@ -420,7 +420,6 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 			sum_evacuated += 0; 
 	}
 
-	printf(" the number of generated pedestrians is   %d \n ", sum_evacuated); // where the msg is received
 
 	//evacuated_population += sum_evacuated; 
 	// assign the number of evacuated pedestrians MS01052020 
@@ -909,11 +908,13 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	//printing the total number of pedestrians in each iteration
 	printf("\n****************************** Pedestrian information *******************************\n");
 	
+	//printf(" Number of pedestrians evacuated is   %d \n ", sum_evacuated);
+	
 	printf("Number of evacuated pedestrians so far = %d \n", evacuated_population);
 	
 	printf("Remaining number of pedestrians to evacuate = %d \n", initial_population - evacuated_population);
 
-	printf("Total number of pedestrians already in the domain = %d \n", no_pedestrians);
+	printf("Number of evacuating pedestrians = %d \n", no_pedestrians);
 	//printing the number of hero pedestrians in each iteration
 	//printf("Total number of emergency responders = %d \n", count_heros);
 	////printf("\n****************************** States of pedestrians *******************************\n");
@@ -3567,7 +3568,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 					if (count_heros <= hero_population)
 					{
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0,0,0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0,0);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3578,7 +3579,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 					else
 					{
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0,0,0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0,0);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3596,7 +3597,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 				if ((evacuated_population < initial_population && sim_time >= evacuation_start_time) && (sim_time <= evacuation_end_time))
 				{			
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed , 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0,0,0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0,0);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3630,7 +3631,7 @@ __FLAME_GPU_FUNC__ int output_PedData(xmachine_memory_agent* agent, xmachine_mes
 
 	//printf(" x of pedestrian is = %f \n ", agent->x);
 
-	add_PedData_message(pedestrian_PedData_messages, agent->x, agent->y, 0.0, agent->hero_status, agent->pickup_time, agent->drop_time, agent->exit_no, agent->carry_sandbag, agent->at_exit_point); // MS added at_exit_point MS29042020
+	add_PedData_message(pedestrian_PedData_messages, agent->x, agent->y, 0.0, agent->hero_status, agent->pickup_time, agent->drop_time, agent->exit_no, agent->carry_sandbag);
 
 	return 0;
 }
