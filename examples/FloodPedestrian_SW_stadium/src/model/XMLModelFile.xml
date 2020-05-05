@@ -49,7 +49,12 @@
           </gpu:variable>
         <gpu:variable>
             <type>int</type>
-            <name>body_effect_on</name><!--to turn on/off the effect of human body on water propagation-->
+            <name>body_as_obstacle_on</name><!--to turn on/off the effect of human body as obstacles on water propagation-->
+          </gpu:variable>
+      
+      <gpu:variable>
+            <type>int</type>
+            <name>ped_roughness_effect_on</name><!--to turn on/off the effect of human body on roughness of the ground-->
           </gpu:variable>
       
       <gpu:variable>
@@ -171,12 +176,12 @@
               
             <gpu:variable>
           <type>double</type>
-            <name>evacuation_end_time</name> <!-- it is a time when evacuation progress ends (no one will remain in the area)-->
+            <name>evacuation_end_time</name> <!-- The time to stop evacuation process-->
           </gpu:variable>
       
       <gpu:variable>
           <type>double</type>
-            <name>evacuation_start_time</name> <!-- it is a time when the evacuation starts -->
+            <name>evacuation_start_time</name> <!-- The time to start the evacuation process -->
           </gpu:variable>
       
              <gpu:variable>
@@ -197,19 +202,19 @@
       </gpu:variable>     
       <gpu:variable>
         <type>int</type>
-        <name>max_dead</name><!--hazard rate to be updated in each iteration, taken as global variable to calculate the maximum HR in the simulation-->
+        <name>max_at_highest_risk</name><!--hazard rate to be updated in each iteration, taken as global variable to calculate the maximum HR in the simulation-->
       </gpu:variable>      
         <gpu:variable>
         <type>int</type>
-        <name>max_alive_wet</name><!--taken as global variable to calculate the maximum number of people could walk in wet area-->
+        <name>max_at_low_risk</name><!--taken as global variable to calculate the maximum number of people could walk in wet area-->
       </gpu:variable>
      <gpu:variable>
         <type>int</type>
-        <name>max_alive_walk</name><!--taken as global variable to calculate the maximum number of people who cannot run and in wet area-->
+        <name>max_at_medium_risk</name><!--taken as global variable to calculate the maximum number of people who cannot run and in wet area-->
       </gpu:variable>
        <gpu:variable>
         <type>int</type>
-        <name>max_alive_stuck</name><!--taken as global variable to calculate the maximum number of people who get stuck into water and cant move-->
+        <name>max_at_high_risk</name><!--taken as global variable to calculate the maximum number of people who get stuck into water and cant move-->
       </gpu:variable>
       <gpu:variable>
         <type>double</type>
@@ -231,12 +236,12 @@
       
       <gpu:variable>
         <type>int</type>
-        <name>initial_population</name> <!--the number of pedestrian that is required to be in the area-->
+        <name>initial_population</name> <!--To defines the initial population size of evacuees (user input)-->
       </gpu:variable>
       
       <gpu:variable>
         <type>int</type>
-        <name>evacuated_population</name> <!--the number of pedestrian that is required to be in the area-->
+        <name>evacuated_population</name> <!--To dynamically count the number of evacuated pedestrians (simulation dependant)-->
       </gpu:variable> 
         
        <gpu:variable>
@@ -245,12 +250,12 @@
       </gpu:variable>
       <gpu:variable>
         <type>int</type>
-        <name>hero_population</name> <!-- to calculate how many heros is expected to be in the area-->
+        <name>hero_population</name> <!-- To dynamically count the number of emergency responders entered to the area-->
       </gpu:variable>
       
       <gpu:variable>
         <type>int</type>
-        <name>sandbagging_on</name><!-- to turn on and turn of sandbagging action manually-->
+        <name>sandbagging_on</name><!-- to turn on/off sandbagging procedure-->
       </gpu:variable>
 
       <gpu:variable>
@@ -289,7 +294,7 @@
       
       <gpu:variable>
         <type>int</type>
-        <name>update_stopper</name><!-- the length of extended sandbags put in drop point-->
+        <name>update_stopper</name><!-- This variable is used as a controller to limit the number of counted sandbaggers -->
       </gpu:variable>
       
       <gpu:variable>
@@ -728,6 +733,13 @@
         <type>double</type>
         <name>qyFace_S</name>
       </gpu:variable>
+    
+    <gpu:variable>
+        <type>double</type>
+        <name>nm_rough</name>
+        <defaultValue>0.01100f</defaultValue> <!-- Manning coefficient of each flood agent - initial 0.011 value is assigned to represent clear cement --> 
+      </gpu:variable>
+    
     </memory>
     <functions>
       <gpu:function>
@@ -937,7 +949,7 @@
         
         <gpu:variable>
           <type>float</type>
-          <name>motion_speed</name> <!-- based on toppling and sliding formulation proposed by Xia 2014 - it varies between 0 to 3 -->
+          <name>motion_speed</name> <!-- to assign variable walking speed to pedestrians based on Postaccini 2018 -->
         </gpu:variable>
       
       </memory>
@@ -1164,6 +1176,11 @@
       <gpu:variable>
           <type>int</type>
           <name>sandbag_capacity</name>
+        </gpu:variable>
+        
+        <gpu:variable>
+          <type>double</type>
+          <name>nm_rough</name>
         </gpu:variable>
         
         <gpu:variable>
@@ -1422,6 +1439,10 @@
             <type>double</type>
             <name>qy</name>
           </gpu:variable>
+        <gpu:variable>
+            <type>double</type>
+            <name>nm_rough</name>
+          </gpu:variable>
         </variables>
         <gpu:partitioningDiscrete>
           <gpu:radius>0</gpu:radius>
@@ -1495,18 +1516,23 @@
           <type>int</type>
           <name>carry_sandbag</name>
         </gpu:variable>
+        
+        <gpu:variable>
+          <type>double</type>
+          <name>body_height</name>
+        </gpu:variable>
   
       </variables>
       <gpu:partitioningSpatial>
-        <!--<gpu:radius>0.025</gpu:radius>--> <!--was used for body effect and the Hydroinformatic model - sandbagging in palce needs 0.025 - MS29042020-->
+        <!--<gpu:radius>0.025</gpu:radius>--> <!--is used without body effect- mainly for sandbagging issue-->
         <gpu:radius>0.005</gpu:radius>
         <gpu:xmin>-1.0</gpu:xmin>
         <gpu:xmax>1.0</gpu:xmax>
         <gpu:ymin>-1.0</gpu:ymin>
         <gpu:ymax>1.0</gpu:ymax>
         <gpu:zmin>0.0</gpu:zmin>
-        <!--<gpu:zmax>0.025</gpu:zmax>--> <!--was used for body effect-->
-        <gpu:zmax>0.005</gpu:zmax>
+        <!--<gpu:zmax>0.025</gpu:zmax>-->  <!--is used without body effect- mainly for sandbagging issue-->
+        <gpu:zmax>0.005</gpu:zmax>  <!--is used for body effect-->
       </gpu:partitioningSpatial>
       <gpu:bufferSize>16384</gpu:bufferSize>
     </gpu:message>
@@ -1563,6 +1589,10 @@
         <gpu:variable>
           <type>double</type>
           <name>z0</name>
+        </gpu:variable>
+        <gpu:variable>
+          <type>double</type>
+          <name>nm_rough</name>
         </gpu:variable>
       
         <!--<gpu:variable>

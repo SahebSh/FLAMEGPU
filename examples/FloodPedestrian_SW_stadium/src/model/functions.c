@@ -47,12 +47,12 @@
 #define DANGEROUS_H			0.25		//treshold for dengerous height of water (m) or 9 kmph
 #define DANGEROUS_V			2.5			//treshold for dengerous relevant velocity of water flow (m/s)
 
-// Defining the state of pedestrians
-#define STATE_ALIVE_DRY		1
-#define STATE_ALIVE_RUN		2
-#define STATE_ALIVE_WALK	3
-#define STATE_ALIVE_STILL	4
-#define STATE_DEAD			0
+// To define the state of pedestrians based on Hazard Rating (HR) estimation of water flow
+#define HR_zero				0
+#define HR_0p0001_0p75		1
+#define HR_0p75_1p5			2
+#define HR_1p5_2p5			3
+#define HR_over_2p5			4
 
 //Flood severity to set to emergency alarm
 #define NO_ALARM			0
@@ -297,11 +297,12 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	set_hero_population(&hero_population);
 
 	// counter constants 
-	int count_trapped = 0;
+	
 	int count_in_dry = 0;
-	int count_wetted = 0;
-	int count_alive_disrupted1 = 0;
-	int count_alive_disrupted2 = 0;
+	int count_at_low_risk = 0;
+	int count_at_medium_risk = 0;
+	int count_at_high_risk = 0;
+	int count_at_highest_risk = 0;
 	int count_heros = 0;
 
 	
@@ -366,25 +367,25 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 		//}
 
 		// counting the number of pedestrians with different states
-		if (pedestrians_state == STATE_DEAD)
-		{
-			count_trapped++;
-		}
-		else if (pedestrians_state == STATE_ALIVE_DRY)
+		else if (pedestrians_state == HR_zero)
 		{
 			count_in_dry++;
 		}
-		else if (pedestrians_state == STATE_ALIVE_RUN)
+		else if (pedestrians_state == HR_0p0001_0p75)
 		{
-			count_wetted++;
+			count_at_low_risk++;
 		}
-		else if (pedestrians_state == STATE_ALIVE_WALK)
+		else if (pedestrians_state == HR_0p75_1p5)
 		{
-			count_alive_disrupted1++;
+			count_at_medium_risk++;
 		}
-		else if (pedestrians_state == STATE_ALIVE_STILL)
+		else if (pedestrians_state == HR_1p5_2p5)
 		{
-			count_alive_disrupted2++;
+			count_at_high_risk++;
+		}
+		if (pedestrians_state == HR_over_2p5)
+		{
+			count_at_highest_risk++;
 		}
 
 		int pedestrian_hero_status = get_agent_default_variable_hero_status(index);
@@ -607,7 +608,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	//int dont_exit = 0;
 	//int do_exit = 10;*/
 
-	int body_effect_on = *get_body_effect_on();
+	int body_as_obstacle_on = *get_body_as_obstacle_on();
 	
 	// Changing the probability and emission // has to be applied for 7 Exits available in the model (number of exits can be extended, 
 	// but needs further compilation, after generating the inputs for pedestrians, the flood model needs to be modified to operate on the
@@ -867,24 +868,24 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 
 	// loading variables on host
 	double HR_max		= *get_HR();
-	int max_dead		= *get_max_dead();
-	int max_alive_wet	= *get_max_alive_wet();
-	int max_alive_walk	= *get_max_alive_walk();
-	int max_alive_stuck	= *get_max_alive_stuck();
+	int max_at_highest_risk		= *get_max_at_highest_risk();
+	int max_at_low_risk	= *get_max_at_low_risk();
+	int max_at_medium_risk	= *get_max_at_medium_risk();
+	int max_at_high_risk	= *get_max_at_high_risk();
 	double max_velocity = *get_max_velocity();
 	double max_depth	= *get_max_depth();
 
 	// storing the maximum number of people with different states in whole the simulation
 	if (HR > HR_max)
 		set_HR(&HR);
-	if (count_trapped > max_dead)
-		set_max_dead(&count_trapped);
-	if (count_wetted > max_alive_wet)
-		set_max_alive_wet(&count_wetted);
-	if (count_alive_disrupted1 > max_alive_walk)
-		set_max_alive_walk(&count_alive_disrupted1);
-	if (count_alive_disrupted2 > max_alive_stuck)
-		set_max_alive_stuck(&count_alive_disrupted2);
+	if (count_at_highest_risk > max_at_highest_risk)
+		set_max_at_highest_risk(&count_at_highest_risk);
+	if (count_at_low_risk > max_at_low_risk)
+		set_max_at_low_risk(&count_at_low_risk);
+	if (count_at_medium_risk > max_at_medium_risk)
+		set_max_at_medium_risk(&count_at_medium_risk);
+	if (count_at_high_risk > max_at_high_risk)
+		set_max_at_high_risk(&count_at_high_risk);
 	if (flow_h_max > max_depth)
 		set_max_depth(&flow_h_max);
 	if (flow_velocity_max > max_velocity)
@@ -919,17 +920,21 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	//printf("Total number of emergency responders = %d \n", count_heros);
 	////printf("\n****************************** States of pedestrians *******************************\n");
 	//////printing the number of pedestrians in dry zones in each iteration
-	printf("\nTotal number of pedestrians in dry areas = %d \n", count_in_dry);
-	//////printing the number of alive pedestrians in wet area running to safe haven in each iteration
-	printf("\nTotal number of pedestrians in wet areas (safe) = %d \n", count_wetted);
-	//////printing the number of dead pedestrians in wet area walking to the safe haven in each iteration
-	//////printf("\nTotal number of pedestrians in wet areas (slightly disrupted) = %d \n", count_alive_disrupted1);
-	////////printing the number of dead pedestrians got stuck into water in each iteration
-	////printf("\nTotal number of pedestrians in wet areas (severely disrupted)	= %d \n", count_alive_disrupted2);
-	printf("\nTotal number of pedestrians in wet areas (disrupted1)	= %d \n", count_alive_disrupted1);
-	printf("\nTotal number of pedestrians in wet areas (disrupted2)	= %d \n", count_alive_disrupted2);
-	////printing the number of pedestrians trapped in floodwater in each iteration
-	printf("\nTotal number of trapped pedestrians = %d \n", count_trapped);
+	printf("\nTotal number of pedestrians at 'no' risk (HR=0) = %d \n", count_in_dry);
+	////printing the number of alive pedestrians in wet area running to safe haven in each iteration
+	printf("\nTotal number of pedestrians at 'low' risk (0.001<HR<0.75) = %d \n", count_at_low_risk);
+	////printing the number of dead pedestrians in wet area walking to the safe haven in each iteration
+	printf("\nTotal number of pedestrians at 'medium' risk (0.75<HR<1.5) = %d \n", count_at_medium_risk);
+	////printing the number of dead pedestrians got stuck into water in each iteration
+	printf("\nTotal number of pedestrians at 'high' risk (1.5<HR<2.5) = %d \n", count_at_high_risk);
+	//printing the number of pedestrians at_highest_risk in floodwater in each iteration
+	printf("\nTotal number of at 'highest' risk (HR>2.5) = %d \n", count_at_highest_risk);
+
+	////printing the number of dead pedestrians got stuck into water in each iteration
+	printf("\nMaximum number of pedestrians at 'low' risk (0.001<HR<0.75) = %d \n", max_at_low_risk);
+	printf("\nMaximum number of pedestrians at 'medium' risk (0.75<HR<1.5) = %d \n", max_at_medium_risk);
+	printf("\nMaximum number of pedestrians at 'high' risk (1.5<HR<2.5)	= %d \n", max_at_high_risk);
+	printf("\nMaximum number of pedestrians at 'highest' risk (HR>2.5)	= %d \n", max_at_highest_risk);
 
 	// temporary printing the number of people people in different defined ranges of body height in the model MS07102019
 	//printf("\n count_60_110 = %d \n", count_60_110-1);
@@ -941,10 +946,10 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 	//printf("\n count_194_210 = %d \n", count_194_210-1);
 
 	////printing the number of dead pedestrians got stuck into water in each iteration
-	//printf("\nMaximum number of pedestrians in safe wet areas = %d \n", max_alive_wet);
-	//printf("\nMaximum number of pedestrians slightly disrupted in wet areas = %d \n", max_alive_walk);
-	//printf("\nMaximum number of pedestrians severely disrupted in wet areas	= %d \n", max_alive_stuck);
-	//printf("\nMaximum number of pedestrians trapped so far	  = %d \n", max_dead);
+	//printf("\nMaximum number of pedestrians in safe wet areas = %d \n", max_at_low_risk);
+	//printf("\nMaximum number of pedestrians slightly disrupted in wet areas = %d \n", max_at_medium_risk);
+	//printf("\nMaximum number of pedestrians severely disrupted in wet areas	= %d \n", max_at_high_risk);
+	//printf("\nMaximum number of pedestrians trapped so far	  = %d \n", max_at_highest_risk);
 
 	//printing the maximum height of water
 	printf("\n****************************** Floodwater information *******************************\n");
@@ -989,18 +994,18 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 		exit(1);
 	}
 
-	//fprintf(fp, "%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t\n", new_sim_time, no_pedestrians, count_in_dry, count_wetted, count_alive_walk, count_alive_disrupted2,count_trapped,HR, flow_h_max, flow_velocity_max, HR_max, max_dead, max_alive_wet, max_alive_walk, max_alive_stuck);
+	//fprintf(fp, "%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t\n", new_sim_time, no_pedestrians, count_in_dry, count_at_low_risk, count_alive_walk, count_at_high_risk,count_at_highest_risk,HR, flow_h_max, flow_velocity_max, HR_max, max_at_highest_risk, max_at_low_risk, max_at_medium_risk, max_at_high_risk);
 	
 	  
 	 
 
 	fprintf(fp, "%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t\n", new_sim_time, 
-		no_pedestrians, count_in_dry, count_wetted, count_alive_disrupted1, count_alive_disrupted2, count_trapped, 
+		no_pedestrians, count_in_dry, count_at_low_risk, count_at_medium_risk, count_at_high_risk, count_at_highest_risk, 
 		HR, flow_h_max, flow_velocity_max, HR_max, 
-		max_dead, max_alive_wet,max_alive_walk, max_alive_stuck, 
+		max_at_highest_risk, max_at_low_risk,max_at_medium_risk, max_at_high_risk, 
 		count_due_sliding, count_due_toppling, count_instable_due_both, count_due_sliding+count_due_toppling+count_instable_due_both);
-	// NOTE:  'max_dead' -> maximum number of trapped pedestrians, 'max_alive_wet' -> maximum number of in lay water, 
-	//		  'max_alive_walk' -> maximum number of distrupted1,   'max_alive_stuck' -> maximum number of distrupted2
+	// NOTE:  'max_at_highest_risk' -> maximum number of trapped pedestrians, 'max_at_low_risk' -> maximum number of in lay water, 
+	//		  'max_at_medium_risk' -> maximum number of distrupted1,   'max_at_high_risk' -> maximum number of distrupted2
 	
 	fclose(fp);
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1128,7 +1133,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 
 
 
-				//	//////////////////////////////// Outputting the location of dead/trapped pedestrian /////////////////////////////////////////
+				//	//////////////////////////////// Outputting the location of pedestrians /////////////////////////////////////////
 					for (int index = 0; index < no_pedestrians; index++)
 					{
 						int HR_state = get_agent_default_variable_HR_state(index);
@@ -1150,7 +1155,7 @@ __FLAME_GPU_STEP_FUNC__ void DELTA_T_func()
 						//// counting the number of pedestrians with different states
 
 						// uncomment below if statement to limit the outputs for peds with specific status
-						//if (pedestrians_state == STATE_DEAD || pedestrians_state == STATE_ALIVE_STILL || pedestrians_state == STATE_ALIVE_WALK)
+						//if (pedestrians_state == HR_over_2p5 || pedestrians_state == HR_1p5_2p5 || pedestrians_state == HR_0p75_1p5)
 						//{
 							// print the global position of pedestians
 							fprintf(fp3, "%.3f\t\t%.3f\t\t%d\t\t%.3f\t\t%d\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%.3f\t\t%d\n", (x - 1)*(0.5*xmax) + xmax, (y - 1)*(0.5*ymax) + ymax, HR_state, HR_ped, stability_state, d_water, v_water, walk_speed, body_height, body_mass, gender);
@@ -1264,7 +1269,7 @@ inline __device__ AgentFlowData GetFlowDataFromAgent(xmachine_memory_FloodCell* 
 
 
 // This function should be called when minh_loc is greater than TOL_H
-inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc, double qy_loc)
+inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc, double qy_loc, double nm_rough)
 {
 	//This function takes the friction term into account for wet agents
 
@@ -1290,7 +1295,8 @@ inline __device__ double2 friction_2D(double dt_loc, double h_loc, double qx_loc
 		{
 			// The is motional. The FRICTIONS CONTRUBUTION HAS TO BE ADDED SO THAT IT DOESN'T REVERSE THE FLOW.
 
-			double Cf = GRAVITY * pow(GLOBAL_MANNING, 2.0) / pow(h_loc, 1.0 / 3.0);
+			//double Cf = GRAVITY * pow(GLOBAL_MANNING, 2.0) / pow(h_loc, 1.0 / 3.0); // Commented to account for flood agents' local Manning coefficient MS04052020 
+			double Cf = GRAVITY * pow(nm_rough, 2.0) / pow(h_loc, 1.0 / 3.0);
 
 			double expULoc = pow(u_loc, 2.0);
 			double expVLoc = pow(v_loc, 2.0);
@@ -1320,7 +1326,8 @@ inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, doubl
 {
 	//double dt = agent->timeStep;
 
-	if (GLOBAL_MANNING > 0.0)
+	//if (GLOBAL_MANNING > 0.0) // for Global Manning version
+	if (agent->nm_rough > 0.0)
 	{
 		AgentFlowData FlowData = GetFlowDataFromAgent(agent);
 
@@ -1329,13 +1336,12 @@ inline __device__ void Friction_Implicit(xmachine_memory_FloodCell* agent, doubl
 			return;
 		}
 
-		double2 frict_Q = friction_2D(dt, FlowData.h, FlowData.qx, FlowData.qy);
+		//double2 frict_Q = friction_2D(dt, FlowData.h, FlowData.qx, FlowData.qy);
+		double2 frict_Q = friction_2D(dt, FlowData.h, FlowData.qx, FlowData.qy, agent->nm_rough);
 
 		agent->qx = frict_Q.x;
 		agent->qy = frict_Q.y;
-
 	}
-
 }
 
 
@@ -1420,6 +1426,12 @@ __FLAME_GPU_FUNC__ int ProcessWetDryMessage(xmachine_memory_FloodCell* agent, xm
 	}
 
 	//printf("qx = %f \t qy = %f \n", agent->qx, agent->qy);
+	//if (agent->h > 0.0f)
+	//{
+	//	printf("Manning Coefficient of the flood agent is = %f ", agent->nm_rough); // Uncomment to print the manning coefficient of each flood agent MS04052020
+	//}
+	//
+
 
 	return 0;
 }
@@ -2689,7 +2701,7 @@ __FLAME_GPU_FUNC__ int outputFloodData(xmachine_memory_FloodCell* agent, xmachin
 {
 	// This function is created to broadcast the information of updated flood agents to navmap agents
 
-	add_FloodData_message<DISCRETE_2D>(FloodData_messages, 1, agent->x, agent->y, agent->z0, agent->h, agent->qx, agent->qy);
+	add_FloodData_message<DISCRETE_2D>(FloodData_messages, 1, agent->x, agent->y, agent->z0, agent->h, agent->qx, agent->qy, agent->nm_rough);
 
 	return 0; 
 }
@@ -2699,7 +2711,7 @@ __FLAME_GPU_FUNC__ int updateNavmap(xmachine_memory_navmap* agent, xmachine_mess
 	// This function updates the information of navmap agents with the flood agents' data
 	// lookup for single message
 	xmachine_message_FloodData* msg = get_first_FloodData_message<DISCRETE_2D>(FloodData_messages, agent->x, agent->y);
-
+	// update the navmap agent with flow information from the flood agent at its location and time MS05052020
 	agent->h = msg->h;						
 	agent->qx = msg->qx;
 	agent->qy = msg->qy;
@@ -2707,9 +2719,12 @@ __FLAME_GPU_FUNC__ int updateNavmap(xmachine_memory_navmap* agent, xmachine_mess
 	// This is the primary step of taking pedestrians as moving objects, as this logical statements first remove the topography (human height) from the
 	// last iteration of the simulation (on navmap agents) this will then be updated in later function (updateNavmapData). 
 	// in simple words, if the option of body effect on the water flow is enabled then remove the topography of last iteration.
-	if (body_effect_on == ON)
+	// NOTE: this mechanism is different than the 2018(updated for 2020) version, as pedestrians are now featured with random heights. MS05052020
+
+	if (body_as_obstacle_on == ON)
 	{
-		if (msg->z0 == body_height) //
+		//if (msg->z0 == body_height) //  Restart topography MS05052020
+		if (msg->z0 > 0.6 &&  msg->z0 < 2.1) //  Restart topography if the topography height is within the range of pedestrian height. MS05052020
 		{
 			agent->z0 = 0;
 		}
@@ -2723,6 +2738,11 @@ __FLAME_GPU_FUNC__ int updateNavmap(xmachine_memory_navmap* agent, xmachine_mess
 		agent->z0 = msg->z0;
 	}
 
+	// restart navmap agent's manning roughness to the initial roughness of bed value (for update in current iteration)
+	if (ped_roughness_effect_on == ON && msg->nm_rough != GLOBAL_MANNING)
+	{
+		agent->nm_rough = GLOBAL_MANNING; 
+	}
 
 	return 0;
 }
@@ -2737,10 +2757,10 @@ __FLAME_GPU_FUNC__ int getNewExitLocation(RNG_rand48* rand48){
 	int exit4_compare  = EXIT4_PROBABILITY  + exit3_compare;
 	int exit5_compare  = EXIT5_PROBABILITY  + exit4_compare;
 	int exit6_compare  = EXIT6_PROBABILITY  + exit5_compare;
-	int exit7_compare  = EXIT7_PROBABILITY  + exit6_compare; //added by MS 12102018
-	int exit8_compare  = EXIT8_PROBABILITY  + exit7_compare; //added by MS 12102018
-	int exit9_compare  = EXIT9_PROBABILITY  + exit8_compare; //added by MS 12102018
-//	int exit10_compare = EXIT10_PROBABILITY + exit9_compare; //added by MS 12102018
+	int exit7_compare  = EXIT7_PROBABILITY  + exit6_compare; 
+	int exit8_compare  = EXIT8_PROBABILITY  + exit7_compare; 
+	int exit9_compare  = EXIT9_PROBABILITY  + exit8_compare; 
+
 
 	float range = (float) (EXIT1_PROBABILITY +
 				  EXIT2_PROBABILITY +
@@ -2818,6 +2838,7 @@ __FLAME_GPU_FUNC__ float getRandomHeight(RNG_rand48* rand48) {
 		return 1.94 + ((rand / group_range)*(2.10 - 1.94));
 }
 
+
 __FLAME_GPU_FUNC__ int getRandomGender(RNG_rand48* rand48) {
 
 	int female_compare = gender_female_probability;
@@ -2835,6 +2856,8 @@ __FLAME_GPU_FUNC__ int getRandomGender(RNG_rand48* rand48) {
 	else
 		return 0; 
 }
+
+// FUNCTION FOR RANDOM AGE COMES HERE MS05052020
 
 /**
  * output_location FLAMEGPU Agent Function
@@ -2950,7 +2973,7 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 	int y = floor(((agent->y+ENV_MAX)/ENV_WIDTH)*d_message_navmap_cell_width);*/
 
 	// modified position of pedestrian agents
-	//  x and y has been swapped so as to rotate the grid of navmap to be alligned with flood grid (MS02102018)
+	//  x and y has been swapped so as flid the navigation grid for spatial synchoranisation with flood agents' grid (MS02102018)
 	int x = floor(((agent->y + ENV_MAX) / ENV_WIDTH)*d_message_navmap_cell_width); 
 	int y = floor(((agent->x + ENV_MAX) / ENV_WIDTH)*d_message_navmap_cell_width);
 
@@ -3052,28 +3075,19 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 	{
 		goal_force = glm::vec2(current_message->exit0_x, current_message->exit0_y);
 		if (exit_location == 1)
-			if (EXIT1_STATE == 1) //EXIT1_PROBABILITY != 0 prevents killing agents while flooding at the exits (for sandbagging test is added MS08102018)
-			{
-				kill_agent = 1;
-			}		
+			if (EXIT1_STATE == 1) //EXIT1_PROBABILITY != 0 prevents killing agents while flooding at the exits (MAY need to use for sandbagging test is added MS08102018)
+				kill_agent = 1;	
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 	}
 	else if (agent->exit_no == 2)
 	{
 		goal_force = glm::vec2(current_message->exit1_x, current_message->exit1_y);
 		if (exit_location == 2)
 			if (EXIT2_STATE == 1)
-			{
 				kill_agent = 1;
-			
-			}	
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 3)
@@ -3081,14 +3095,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit2_x, current_message->exit2_y);
 		if (exit_location == 3)
 			if (EXIT3_STATE == 1)
-			{
-				kill_agent = 1;
-				
-			}			
+				kill_agent = 1;		
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 4)
@@ -3096,14 +3105,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit3_x, current_message->exit3_y);
 		if (exit_location == 4)
 			if (EXIT4_STATE == 1)
-			{
-				kill_agent = 1;
-				
-			}	
+				kill_agent = 1;	
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 5)
@@ -3111,14 +3115,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit4_x, current_message->exit4_y);
 		if (exit_location == 5)
 			if (EXIT5_STATE == 1)
-			{
-				kill_agent = 1;
-			
-			}				
+				kill_agent = 1;					
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 6)
@@ -3126,14 +3125,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit5_x, current_message->exit5_y);
 		if (exit_location == 6)
 			if (EXIT6_STATE == 1)
-			{
-				kill_agent = 1;
-				
-			}		
+				kill_agent = 1;	
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 7)
@@ -3141,14 +3135,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit6_x, current_message->exit6_y);
 		if (exit_location == 7)
 			if (EXIT7_STATE == 1)
-			{
 				kill_agent = 1;
-				
-			}	
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 8)
@@ -3156,14 +3145,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit7_x, current_message->exit7_y);
 		if (exit_location == 8)
 			if (EXIT8_STATE == 1)
-			{
 				kill_agent = 1;
-				
-			}
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 9)
@@ -3171,14 +3155,9 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit8_x, current_message->exit8_y);
 		if (exit_location == 9)
 			if (EXIT9_STATE == 1)
-			{
 				kill_agent = 1;
-				
-			}
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 	else if (agent->exit_no == 10)
@@ -3186,14 +3165,10 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 		goal_force = glm::vec2(current_message->exit9_x, current_message->exit9_y);
 		if (exit_location == 10)
 			if (EXIT10_STATE == 1)
-			{
 				kill_agent = 1;
-				
-			}		
+						
 			else
-			{
 				agent->exit_no = getNewExitLocation(rand48);
-			}
 				
 	}
 
@@ -3204,7 +3179,7 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 	agent->steer_x += collision_force.x + goal_force.x;
 	agent->steer_y += collision_force.y + goal_force.y;
 
-	//update height //////// Do not update the height of pedestrian (MS23092019)
+	//update height //////// Do not update the height of pedestrian with navmap data (MS23092019)
 	// agent->body_height = current_message->height;
 
 	// take the maximum velocity of water in both x- and y-axis directions from navmap cells
@@ -3223,7 +3198,7 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 	}
 	
 
-	// Water velocity regardless of direction and whether it is (-) or (+)
+	// Maximum directionless absolute water velocity
 	double water_velocity = max(water_velocity_x, water_velocity_y);
 
 	// hazard rating the flow
@@ -3268,22 +3243,22 @@ __FLAME_GPU_FUNC__ int force_flow(xmachine_memory_agent* agent, xmachine_message
 
 		if (HR <= epsilon && HR <= epsilon)
 		{
-			agent->HR_state = STATE_ALIVE_DRY;
+			agent->HR_state = HR_zero;// HR_zero;
 		}				
 		else
 		{
 			if (HR > epsilon && HR <= 0.75)
-				agent->HR_state = STATE_ALIVE_RUN;
+				agent->HR_state = HR_0p0001_0p75;
 			else if (HR >  0.75 && HR <= 1.5)
-				agent->HR_state = STATE_ALIVE_WALK; // Disrupted 1
+				agent->HR_state = HR_0p75_1p5;
 			else if (HR > 1.5 && HR <= 2.5)
-				agent->HR_state = STATE_ALIVE_STILL; // Disrupted 2
+				agent->HR_state = HR_1p5_2p5; 
 			else if (HR > 2.5)
-				agent->HR_state = STATE_DEAD; // Still
+				agent->HR_state = HR_over_2p5; 
 		}
 			
 		
-		// Assigning the stability state of the pedestrian based on incepient velocity at which the pedestrian might not be stable due to sliding or toppling
+		// Assigning the stability state pedestrian agent based on incepient velocity adressing their sliding and/or toppling in water
 		if (water_height > 0.0f) // avoid calculations if there is no water
 		{
 			if (agent->v_water < u_c_s && agent->v_water < u_c_t)
@@ -3325,7 +3300,7 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	//// default current_speed based on FloodPedestrian model MS02092019
 	float current_speed = length(agent_vel) + 0.025f;//(powf(length(agent_vel), 1.75f)*0.01f)+0.025f;
 	
-	// Calculate the magnitude of water depth and velocity pairs (MS 19092019) based on Ishigaki et al. 2009 -> reported in Postaccini 2018 
+	// For variable walking speed, calculate the magnitude of water depth and velocity pairs based on Ishigaki et al. 2009 -> reported in Postaccini 2018 (MS 19092019)
 	float M = (powf(agent->v_water, 2.0)*agent->d_water) / GRAVITY + (0.5 * powf(agent->d_water, 2.0));
 
 	// Defining the speed limit when normal condition is considered
@@ -3382,7 +3357,7 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	if (speed >= agent->speed)
 	{
 		agent_vel = normalize(agent_vel)*agent->speed;
-		speed = agent->speed; // a normalised speed now. 
+		speed = agent->speed; // to normalised the pedestrian speed. 
 		speed_ratio = current_speed/speed ; // concerns the differences between the initial walking speed and that of in floodwater. 
 		if (speed_ratio > 1.0f)
 		{
@@ -3411,7 +3386,7 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	//agent->animate += (agent->animate_dir * speed_ratio*powf(speed, 2.0f)*TIME_SCALER*100.0f)*time_step_ratio; // for shopping centre test
 	agent->animate += (agent->animate_dir * speed_ratio*powf(speed, 2.0f)*TIME_SCALER*100.0f); // for shopping centre test
 
-	// do not move pedestrian if they have lost their stability
+	// to immobalise pedestrian if unstable (due to toppling/sliding)
 	if ( (agent->stability_state != 0) && (freeze_while_instable_on == ON) )
 	{
 		// Update the location of pedestrian
@@ -3439,7 +3414,6 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	if (agent->animate <= 0)
 		agent->animate_dir = 1;
 
-	//double temporary_time_scaler= ;
 
 	//printf("\n***time_scale_new = %f s", time_scale_new);
 	//printf("\n***TIME_SCALER = %f s", TIME_SCALER);
@@ -3568,7 +3542,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 					if (count_heros <= hero_population)
 					{
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0,0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0, 0);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3579,7 +3553,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 					else
 					{
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0,0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0, 0);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3597,7 +3571,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 				if ((evacuated_population < initial_population && sim_time >= evacuation_start_time) && (sim_time <= evacuation_end_time))
 				{			
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed , 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0,0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0, 0);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3631,7 +3605,7 @@ __FLAME_GPU_FUNC__ int output_PedData(xmachine_memory_agent* agent, xmachine_mes
 
 	//printf(" x of pedestrian is = %f \n ", agent->x);
 
-	add_PedData_message(pedestrian_PedData_messages, agent->x, agent->y, 0.0, agent->hero_status, agent->pickup_time, agent->drop_time, agent->exit_no, agent->carry_sandbag);
+	add_PedData_message(pedestrian_PedData_messages, agent->x, agent->y, 0.0, agent->hero_status, agent->pickup_time, agent->drop_time, agent->exit_no, agent->carry_sandbag, agent->body_height);
 
 	return 0;
 }
@@ -3672,25 +3646,18 @@ __FLAME_GPU_FUNC__ int updateNavmapData(xmachine_memory_navmap* agent, xmachine_
 		
 	
 	// parameter to count the number of pedestrians existing over a navmap agent at the same time.
-	//int ped_in_nav_counter = 0;
+	int ped_in_nav_counter = 0;
 
 
 	// load messages from pedestrian
 	while (msg)	
 	{
-		//ped_in_nav_counter++;
+		ped_in_nav_counter++;
 
 		//printf(" the number of pedestrians in the navmap %d \n ", ped_in_nav_counter); // where the msg is received
 
-		/*if (exit_location != 0 && exit_location == msg->exit_no)
-		{
-			agent->evac_counter++;
-		}*/
-		
-		//agent->evac_counter += ped_in_nav_counter;
-
 		// Check if the body effect option is activated. If so, take pedestrians as moving objects (obstacles for water propagation)
-		if (body_effect_on == ON)
+		if (body_as_obstacle_on == ON)
 		{
 			// locate the position of each pedestrian within the grid of navmap agents
 			glm::vec2 msg_pos = glm::vec2(msg->x, msg->y);
@@ -3701,10 +3668,26 @@ __FLAME_GPU_FUNC__ int updateNavmapData(xmachine_memory_navmap* agent, xmachine_
 			// update the topography up to the human height only if there is no pre-defined topography in the model's initial condition
 			if ((distance < MESSAGE_RADIUS) && (agent->z0 == 0.0f))  // MS added  && (agent->z0 == 0.0f) on 06092019
 			{
-					agent->z0 = body_height; 			
+					agent->z0 = msg->body_height;
 			}
 		}
 		
+		if (ped_roughness_effect_on == ON)
+		{
+			// printing out how many pedestrian are walking over the navmap agent
+			//printf("\n *NUMBER OF PEDESTRIAN OVER THE NAV. AGENT = %d \n", ped_in_nav_counter);
+
+			// To locate the position of each pedestrian within the grid of navmap agents
+			glm::vec2 msg_pos = glm::vec2(msg->x, msg->y);
+
+			float distance = length(agent_pos - msg_pos);
+			
+			if (distance < MESSAGE_RADIUS)
+			{
+				agent->nm_rough = GLOBAL_MANNING + (ped_in_nav_counter * GLOBAL_MANNING); // increase the roughness according to the number of pedestrians within one navigation agent
+			}
+		}
+
 
 		if (evacuation_on == ON)
 		{
@@ -3727,22 +3710,17 @@ __FLAME_GPU_FUNC__ int updateNavmapData(xmachine_memory_navmap* agent, xmachine_
 			msg = get_next_PedData_message(msg, PedData_messages, partition_matrix);
 	}
 
-	//printf(" the number of pedestrians evacuated via exit %d \n ", ped_in_nav_counter);
+	//if (agent->nm_rough > 3 * GLOBAL_MANNING)
+	//{
+	//	//printf(" Number of pedestrians over this navigation agent %d \n ", ped_in_nav_counter);
+	//	printf(" The roughness of the navigation agent is %f \n ", agent->nm_rough);
+
+	//}
+
+		//printf(" Number of pedestrians over this navigation agent %d \n ", ped_in_nav_counter);
+		//printf(" The bed height of the navigation agent is %f \n ", agent->z0);
+
 	
-	//agent->evac_counter += ped_in_nav_counter;
-
-	//////Testing whether the counter is working or not (for Exit 6) MS29042020
-	//if (agent->evac_counter != 0) // || exit_location == 7
-	//{
-	//	printf(" the number of pedestrians evacuated via exit %d is %d \n ", exit_location, agent->evac_counter);
-	//}
-
-
-	//if (exit_location == drop_point)
-	//{
-	//	printf("\n *sandbag_capacity = %d \n", agent->sandbag_capacity);
-	//}
-
 		add_updatedNavmapData_message<DISCRETE_2D>(updatedNavmapData_messages, agent->x, agent->y, agent->z0, agent->drop_point, agent->sandbag_capacity, agent->exit_no);
 
 	return 0;
@@ -3869,7 +3847,7 @@ __FLAME_GPU_FUNC__ int updateNeighbourNavmap(xmachine_memory_navmap* agent, xmac
 		agent->sandbag_capacity = 0;
 	}
 
-	add_NavmapData_message<DISCRETE_2D>(NavmapData_messages, agent->x, agent->y, agent->z0);
+	add_NavmapData_message<DISCRETE_2D>(NavmapData_messages, agent->x, agent->y, agent->z0, agent->nm_rough);
 
 	return 0;
 }
@@ -3888,19 +3866,44 @@ __FLAME_GPU_FUNC__ int UpdateFloodTopo(xmachine_memory_FloodCell* agent, xmachin
 	{*/	
 	
 	// restart the topography presenting the body of pedestrian to zero
-	if (body_effect_on == ON)
+	if (body_as_obstacle_on == ON)
 	{
 		agent->z0 = 0;
 	}
-	
 
 	// Update new topography data to flood agents
-	if (agent->z0 < msg->z0 ) // Do not update if the floodCell agent has already a topgraphic feature (e.g. building data)
+	if (agent->z0 < msg->z0) // Do not update if the floodCell agent has already a topgraphic feature (e.g. building data)
 	{
 		if (agent->x == msg->x && agent->y == msg->y)
 		{
 			agent->z0 = msg->z0;
 		}
+	}
+
+
+	// assiging bed roughness as initial value what happens here see *1
+	if (ped_roughness_effect_on == ON && agent->nm_rough > GLOBAL_MANNING) 
+	{
+		agent->nm_rough = GLOBAL_MANNING;
+	}
+
+	//*1 : agent->nm_rough holds the manning coefficient from the last iteration, and therefore it is checked whether it holds the manning for the bed
+	//		or for the pedestrians's feet, if it holds the pedestrian's feet manning from the last iteration, then it is reset to the bed Manning in order to 
+	//		get updated with the new values as received from the Navigation agents (in *2)
+
+	// *2: duplicate the topography information on flood agent
+	if (agent->x == msg->x && agent->y == msg->y)
+	{
+		if (agent->z0 < msg->z0) // check if the minumum needed is observed
+		{
+			agent->z0 = msg->z0;
+		}
+
+		if (agent->nm_rough < msg->nm_rough) // check if the minumum needed is observed and here the minimum is the roughness of bed
+		{
+			agent->nm_rough = msg->nm_rough;
+		}
+
 	}
 
 	/*	msg = get_next_NavmapData_message<DISCRETE_2D>(msg, NavmapData_messages);
