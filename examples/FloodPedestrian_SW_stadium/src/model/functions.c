@@ -2858,7 +2858,43 @@ __FLAME_GPU_FUNC__ int getRandomGender(RNG_rand48* rand48) {
 }
 
 // FUNCTION FOR RANDOM AGE COMES HERE MS05052020
+__FLAME_GPU_FUNC__ int getRandomAge(RNG_rand48* rand48) {
 
+	int Age_10_17_compare = PedAge_10_17_probability;
+	int Age_18_29_compare = PedAge_18_29_probability + Age_10_17_compare;
+	int Age_30_39_compare = PedAge_30_39_probability + Age_18_29_compare;
+	int Age_40_49_compare = PedAge_40_49_probability + Age_30_39_compare;
+	int Age_50_59_compare = PedAge_50_59_probability + Age_40_49_compare;
+	int Age_60_69_compare = PedAge_60_69_probability + Age_50_59_compare;
+	//int Age_70_79_compare = PedAge_70_79_probability + Age_60_69_compare;
+
+
+	float age_range = (float)(PedAge_10_17_probability +
+		PedAge_18_29_probability +
+		PedAge_30_39_probability +
+		PedAge_40_49_probability +
+		PedAge_50_59_probability +
+		PedAge_60_69_probability +
+		PedAge_70_79_probability);
+
+
+	float rand = rnd<CONTINUOUS>(rand48) * age_range;
+
+	if (rand < Age_10_17_compare)
+		return 10 + ((rand / age_range)*(17 - 10));
+	else if (rand < Age_18_29_compare)
+		return 18 + ((rand / age_range)*(29 - 18));
+	else if (rand < Age_30_39_compare)
+		return 30 + ((rand / age_range)*(39 - 30));
+	else if (rand < Age_40_49_compare)
+		return 40 + ((rand / age_range)*(49 - 40));
+	else if (rand < Age_50_59_compare)
+		return 50 + ((rand / age_range)*(59 - 50));
+	else if (rand < Age_60_69_compare)
+		return 60 + ((rand / age_range)*(69 - 60));
+	else
+		return 70 + ((rand / age_range)*(79 - 70));
+}
 /**
  * output_location FLAMEGPU Agent Function
  * Automatically generated using functions.xslt
@@ -3439,6 +3475,8 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	if (agent->y > 1.0f)
 		agent->y-=2.0f;
 
+	printf("The age of pedestrian is %d\n", agent->age);
+
 
     return 0;
 }
@@ -3526,6 +3564,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 
 			int gender = getRandomGender(rand48);
 
+			int age = getRandomAge(rand48);
 			//// For random initial speed generation
 			//// For a pre-defined walking speed condition.  0.025 is now reduced from the initial speed to observe the actual defined one, since
 			//// it is later added to the pedestrian for their first step walking in 'move' function.
@@ -3542,7 +3581,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 					if (count_heros <= hero_population)
 					{
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0, 0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 1, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0, 0, age);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3553,7 +3592,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 					else
 					{
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0, 0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0, 0, age);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;
@@ -3571,7 +3610,7 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 				if ((evacuated_population < initial_population && sim_time >= evacuation_start_time) && (sim_time <= evacuation_end_time))
 				{			
 						//add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->body_height, exit, speed , 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, 0);
-						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0,body_height, body_mass, gender, 0, 0);
+						add_agent_agent(agent_agents, x, y, 0.0f, 0.0f, 0.0f, 0.0f, agent->height, exit, speed, 1, animate, 1, 1, 0, 0.0f, 0.0f, 0, 0, 0, 0, 0, body_height, body_mass, gender, 0, 0, age);
 						
 						// to store the number of pedestrians generated from this navigation agent  MS01052020
 						agent->evac_counter++;

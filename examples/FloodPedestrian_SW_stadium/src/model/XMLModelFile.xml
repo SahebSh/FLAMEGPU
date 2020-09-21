@@ -578,6 +578,38 @@
         <type>int</type>
         <name>PedHeight_194_210_probability</name>
       </gpu:variable>
+      
+      <gpu:variable>
+        <type>int</type>
+        <name>PedAge_10_17_probability</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>PedAge_18_29_probability</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>PedAge_30_39_probability</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>PedAge_40_49_probability</name>
+      </gpu:variable>
+            <gpu:variable>
+        <type>int</type>
+        <name>PedAge_50_59_probability</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>PedAge_60_69_probability</name>
+      </gpu:variable>
+      <gpu:variable>
+        <type>int</type>
+        <name>PedAge_70_79_probability</name>
+      </gpu:variable>
+      
+      
+      
       <gpu:variable>
         <type>int</type>
         <name>gender_female_probability</name>
@@ -950,6 +982,11 @@
         <gpu:variable>
           <type>float</type>
           <name>motion_speed</name> <!-- to assign variable walking speed to pedestrians based on Postaccini 2018 -->
+        </gpu:variable>
+        
+      <gpu:variable>
+          <type>int</type>
+          <name>age</name> <!-- to assign variable walking speed to pedestrians based on Postaccini 2018 -->
         </gpu:variable>
       
       </memory>
