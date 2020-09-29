@@ -58,7 +58,7 @@ extern void generate_instances(cudaGraphicsResource_t * instances_cgr);
 
 // flood model specific ranges
 #define Z0_MIN 0.0f
-#define Z0_MAX 1.0f // 2.0f //40 //2.0f //
+#define Z0_MAX 40 //1.0f // 2.0f //40 //2.0f //
 
 #define H_MIN 0.0f
 #define H_MAX 0.02f // 0.01f

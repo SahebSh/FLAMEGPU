@@ -2895,6 +2895,75 @@ __FLAME_GPU_FUNC__ int getRandomAge(RNG_rand48* rand48) {
 	else
 		return 70 + ((rand / age_range)*(79 - 70));
 }
+
+// FUNCTION to output a random BMI for pedestrians MS21092020
+//__FLAME_GPU_FUNC__ int getRandomBMI_f(RNG_rand48* rand48) {
+//
+//	//int BMI_female = 1;
+//
+//	//float BMI_range = (float)(PedAge_10_17_probability +
+//	//	PedAge_18_29_probability +
+//	//	PedAge_30_39_probability +
+//	//	PedAge_40_49_probability +
+//	//	PedAge_50_59_probability +
+//	//	PedAge_60_69_probability +
+//	//	PedAge_70_79_probability);
+//
+//
+//	float rand = rnd<CONTINUOUS>(rand48) ;
+//
+//	return 16.01 + (rand)* (32.03 - 16.01);
+///*
+//	if (rand < Age_10_17_compare)
+//		return 10 + ((rand / age_range)*(17 - 10));
+//	else if (rand < Age_18_29_compare)
+//		return 18 + ((rand / age_range)*(29 - 18));
+//	else if (rand < Age_30_39_compare)
+//		return 30 + ((rand / age_range)*(39 - 30));
+//	else if (rand < Age_40_49_compare)
+//		return 40 + ((rand / age_range)*(49 - 40));
+//	else if (rand < Age_50_59_compare)
+//		return 50 + ((rand / age_range)*(59 - 50));
+//	else if (rand < Age_60_69_compare)
+//		return 60 + ((rand / age_range)*(69 - 60));
+//	else
+//		return 70 + ((rand / age_range)*(79 - 70));*/
+//}
+//
+//__FLAME_GPU_FUNC__ int getRandomBMI_m(RNG_rand48* rand48) {
+//
+//	//int BMI_female = 1;
+//
+//	//float BMI_range = (float)(PedAge_10_17_probability +
+//	//	PedAge_18_29_probability +
+//	//	PedAge_30_39_probability +
+//	//	PedAge_40_49_probability +
+//	//	PedAge_50_59_probability +
+//	//	PedAge_60_69_probability +
+//	//	PedAge_70_79_probability);
+//
+//
+//	float rand = rnd<CONTINUOUS>(rand48);
+//
+//	return 18.21 + (rand)* (32.10 - 18.21);
+//	/*
+//	if (rand < Age_10_17_compare)
+//	return 10 + ((rand / age_range)*(17 - 10));
+//	else if (rand < Age_18_29_compare)
+//	return 18 + ((rand / age_range)*(29 - 18));
+//	else if (rand < Age_30_39_compare)
+//	return 30 + ((rand / age_range)*(39 - 30));
+//	else if (rand < Age_40_49_compare)
+//	return 40 + ((rand / age_range)*(49 - 40));
+//	else if (rand < Age_50_59_compare)
+//	return 50 + ((rand / age_range)*(59 - 50));
+//	else if (rand < Age_60_69_compare)
+//	return 60 + ((rand / age_range)*(69 - 60));
+//	else
+//	return 70 + ((rand / age_range)*(79 - 70));*/
+//}
+
+
 /**
  * output_location FLAMEGPU Agent Function
  * Automatically generated using functions.xslt
@@ -3376,8 +3445,9 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	
 	agent->motion_speed = current_speed;
 	//printf("\nPedestrian walking speed = %.3f m/s", current_speed);
-	//printf("\nThe body height of the pedestrian = %f m", agent->body_height); // MS23092019
-	//printf("\nThe body mass of the pedestrian = %f kg", agent->body_mass);
+	printf("\nThe body height of the pedestrian = %f m", agent->body_height); // MS23092019
+	printf("\nThe body mass of the pedestrian = %f kg", agent->body_mass);
+	printf("\nThe age of the pedestrian = %d yrs", agent->age);
 	//printf("\nThe gender of pedestrian = %d ", agent->gender);
 
 	// vector of current position before the update for new iteration
@@ -3475,7 +3545,7 @@ __FLAME_GPU_FUNC__ int move(xmachine_memory_agent* agent) {
 	if (agent->y > 1.0f)
 		agent->y-=2.0f;
 
-	printf("The age of pedestrian is %d\n", agent->age);
+	//printf("The age of pedestrian is %d\n", agent->age);
 
 
     return 0;
@@ -3535,39 +3605,61 @@ __FLAME_GPU_FUNC__ int generate_pedestrians(xmachine_memory_navmap* agent, xmach
 			
 			// Finding random body height (in Meters)
 			float body_height = getRandomHeight(rand48);
-			float body_mass;
-			//body mass in kg:
-			// For adults (body_height > 160) body weight is estimated based on the formulations proposed in 
-			// the paper "Estimation of weight in adults from height: a novel option for a quick bedside technique" which is (body_height - 1)*100 
-			// online visit of this paper: https://intjem.biomedcentral.com/articles/10.1186/s12245-018-0212-9
+	
+			//////body mass in kg:
+			////// For adults (body_height > 160) body weight is estimated based on the formulations proposed in 
+			////// the paper "Estimation of weight in adults from height: a novel option for a quick bedside technique" which is (body_height - 1)*100 
+			////// online visit of this paper: https://intjem.biomedcentral.com/articles/10.1186/s12245-018-0212-9
 
-			// For children (body height>110cm and <160cm) body weight is estimated based on an average Body Mass Index (BMI) for kids, which is expected to
-			// be between 18.5 and 24.9. Herein the average of 21.7 is used. 
-			// this is based on Child BMI: Body Mass Index Calculator for Children accessible online https://www.disabled-world.com/calculators-charts/child-bmi.php
-			
-			// For kids (body height < 110 cm), the body mass is estimated based on the formulation proposed by Mark E. Ralston and Mark A. Myatt for childred with normal growth rate
-			// online visit of this paper: https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0159260&type=printable
-			// However, herein the kids are considered to be carried by parrents, thus not considered in the simulation
-			
-			body_mass = (body_height - 1) * 100 + (-10) + (rnd<CONTINUOUS>(rand48)*(20)); // adding +/- 10% random telorance within: (-10) + (rnd<CONTINUOUS>(rand48)*(20)
+			////// For children (body height>110cm and <160cm) body weight is estimated based on an average Body Mass Index (BMI) for kids, which is expected to
+			////// be between 18.5 and 24.9. Herein the average of 21.7 is used. 
+			////// this is based on Child BMI: Body Mass Index Calculator for Children accessible online https://www.disabled-world.com/calculators-charts/child-bmi.php
+			////
+			////// For kids (body height < 110 cm), the body mass is estimated based on the formulation proposed by Mark E. Ralston and Mark A. Myatt for childred with normal growth rate
+			////// online visit of this paper: https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0159260&type=printable
+			////// However, herein the kids are considered to be carried by parrents, thus not considered in the simulation
+			////
+			////body_mass = (body_height - 1) * 100 + (-10) + (rnd<CONTINUOUS>(rand48)*(20)); // adding +/- 10% random telorance within: (-10) + (rnd<CONTINUOUS>(rand48)*(20)
 
-			if (body_height <= 1.10)  // Kids height - the probability of their existans in the shopping centre case must be taken zero as they are carried by parents (hopefully).
-			{
-				body_mass = 11.7344f-((11.7344f - (-7.4675f + (0.2202f*body_height*100))) / 0.8537f); // CAUTION: Body height here is expected to be in centimeters
-			}
-			
-			if ( (body_height > 1.10) && (body_height <= 1.60)) // for children - who could not be carried
-			{				
-				body_mass = powf(body_height, 2) * 21.7f; // 21.7 is the average ideal BMI for children
-			}
-			
+			////if (body_height <= 1.10)  // Kids height - the probability of their existans in the shopping centre case must be taken zero as they are carried by parents (hopefully).
+			////{
+			////	body_mass = 11.7344f-((11.7344f - (-7.4675f + (0.2202f*body_height*100))) / 0.8537f); // CAUTION: Body height here is expected to be in centimeters
+			////}
+			////
+			////if ( (body_height > 1.10) && (body_height <= 1.60)) // for children - who could not be carried
+			////{				
+			////	body_mass = powf(body_height, 2) * 21.7f; // 21.7 is the average ideal BMI for children
+			////}
+			////
 
 			int gender = getRandomGender(rand48);
-
+			
 			int age = getRandomAge(rand48);
 			//// For random initial speed generation
 			//// For a pre-defined walking speed condition.  0.025 is now reduced from the initial speed to observe the actual defined one, since
 			//// it is later added to the pedestrian for their first step walking in 'move' function.
+
+			float BMI;
+					
+			if ((body_height > 1.40) && (body_height <= 1.63)) 
+			{				
+				BMI = 21.7f; // 21.7 is the average ideal BMI for children 
+		    }
+			else
+			{
+				if (gender == 1) //female indicator
+				{
+					BMI = 16.01 + rnd<CONTINUOUS>(rand48)*(32.03 - 16.01);// 16.01 to 32.03 is the range for female BMI
+				}
+				else 
+				{
+					BMI = 18.21 + rnd<CONTINUOUS>(rand48)*(32.10 - 18.21); // 32.10 to 18.21 is the range for male BMI
+				}
+			}
+
+			// body mass calculation for given body height and BMI
+			float body_mass = powf(body_height, 2) * BMI;
+
 			float speed = init_speed - 0.025;
 			
 			if (evacuation_on == ON && sandbagging_on == ON)
