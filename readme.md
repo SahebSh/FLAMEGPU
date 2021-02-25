@@ -5,6 +5,7 @@ One Paragraph of project description goes here
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+By clonnig/downloading this repo's content you will have access to the flood-pedestrian source code located in examples folder.
 
 ### Prerequisites
 
