@@ -1,5 +1,3 @@
-# FLAME GPU
-
 http://www.flamegpu.com
 
 Current version: `1.5.0`
