@@ -17,7 +17,7 @@ By clonnig/downloading this repo's content you will have access to the flood-ped
 + Nvidia Graphics card with minimum 2GB GDDR memory
 
 ### Installing
-
+Installation steps goes here. 
 
 ## Running the tests
 
